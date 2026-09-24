@@ -23,6 +23,9 @@
     "section-split": "src/components/section-split/section-split.html"
   },
   "styles": [
-    "src/styles/site.css"
+    "src/styles/tokens.css",
+    "src/styles/elements.css",
+    "src/styles/layout.css",
+    "src/styles/sections.css"
   ]
 }

@@ -12,14 +12,14 @@ header {
 
 .brand {
   font-weight: 700;
-  font-size: 18px;
+  font-size: var(--text-l);
   color: var(--ink);
   text-decoration: none;
 }
 
 nav {
   display: flex;
-  gap: 20px;
+  gap: var(--space-m);
 }
 
 nav a {

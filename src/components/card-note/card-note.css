@@ -1,6 +1,6 @@
 p {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--text-xs);
   font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: uppercase;

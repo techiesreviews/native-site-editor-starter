@@ -5,10 +5,10 @@
 section {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 40px;
+  gap: var(--space-2xl);
   align-items: center;
-  padding: 32px;
-  border-radius: 16px;
+  padding: var(--space-xl);
+  border-radius: var(--radius-l);
   background: var(--surface);
 }
 
@@ -23,26 +23,26 @@ section {
   height: auto;
   aspect-ratio: 4 / 3;
   object-fit: cover;
-  border-radius: 12px;
+  border-radius: var(--radius-m);
   background: var(--page);
 }
 
 .content {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-s);
   min-width: 0;
 }
 
 h2 {
   margin: 0;
-  font-size: clamp(24px, 3vw, 34px);
+  font-size: var(--text-3xl);
   line-height: 1.2;
 }
 
 p {
   margin: 0;
-  font-size: 18px;
+  font-size: var(--text-l);
   line-height: 1.6;
   color: var(--muted);
 }
@@ -50,16 +50,16 @@ p {
 .actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 8px;
+  gap: var(--space-xs);
+  margin-top: var(--space-2xs);
 }
 
 /* Both buttons: the template's own fallback links and the ones a page slots in. */
 .actions a,
 .actions ::slotted(a) {
   display: inline-block;
-  padding: 12px 20px;
-  border-radius: 999px;
+  padding: var(--space-xs) var(--space-m);
+  border-radius: var(--radius-full);
   background: var(--accent);
   color: #fff;
   font-weight: 600;
@@ -87,7 +87,7 @@ slot[name="secondary"] a:hover,
 @media (max-width: 720px) {
   section {
     grid-template-columns: 1fr;
-    gap: 24px;
-    padding: 24px;
+    gap: var(--space-l);
+    padding: var(--space-l);
   }
 }

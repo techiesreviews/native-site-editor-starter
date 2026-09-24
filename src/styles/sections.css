@@ -1,0 +1,19 @@
+/* Sections written directly in a page, as opposed to section-* components. */
+@layer sections {
+  .hero h1 {
+    max-width: 24ch;
+  }
+
+  .lead {
+    font-size: var(--text-l);
+    line-height: 1.6;
+    color: var(--muted);
+  }
+
+  .approach,
+  .contact {
+    padding: var(--space-xl);
+    border-radius: var(--radius-l);
+    background: var(--surface);
+  }
+}

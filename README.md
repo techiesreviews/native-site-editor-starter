@@ -21,7 +21,7 @@ Site-wide metadata for the export (name, canonical URL, description, theme colou
 .astro-editor/native.json   Manifest the editor reads first
 src/pages/                  One HTML file per route
 src/components/<name>/      One folder per component, template plus its stylesheet
-src/styles/                 Stylesheets shared by every page and component
+src/styles/                 Shared stylesheets, one per cascade layer
 src/images/                 Images, referenced as src/images/<file>
 ```
 
@@ -46,14 +46,19 @@ src/images/                 Images, referenced as src/images/<file>
     "card-project": "src/components/card-project/card-project.html",
     "card-note": "src/components/card-note/card-note.html"
   },
-  "styles": ["src/styles/site.css"]
+  "styles": [
+    "src/styles/tokens.css",
+    "src/styles/elements.css",
+    "src/styles/layout.css",
+    "src/styles/sections.css"
+  ]
 }
 ```
 
 - `version` is always `1`.
 - `routes` maps a URL path to a page file under `src/pages/`, either as the path alone or as an object with `file` plus an optional `title` and `description` that the static export puts in the page head. The `/` route is required. To add a page, create the file and add a route here.
 - `components` maps a custom-element tag to its template under `src/components/`. Tags must be lowercase and contain a dash.
-- `styles` lists shared stylesheets under `src/styles/`. They are loaded into the page and into every component.
+- `styles` lists shared stylesheets under `src/styles/`, in order. They are loaded into the page and into every component. List each file here rather than using `@import`: the editor applies each one as a constructed stylesheet, which ignores `@import`.
 
 ## Pages
 
@@ -95,7 +100,7 @@ and only the one card on the home page that passes `<a slot="link" href="#/about
 
 Because the stylesheet only ever reaches its own shadow root, a component styles itself with plain element selectors and needs no name-prefixed classes: `article`, `h3`, `nav a`. Add a short class such as `actions` or `body` only where two elements of the same tag need different rules. Nothing a component defines can reach the page or another component.
 
-The shared stylesheets are adopted into every shadow root as well, so their rules also apply inside a component. Where a shared rule is only meant as a default, wrap its selector in `:where()` to hold it at zero specificity. `site.css` colours running text links with `:where(p a, li a)`, so `site-footer` overrides it with a plain `a` rule, while a component that says nothing about links still gets the accent colour, as `section-contact` does for the fallback link in its action paragraph. A shared rule not written that way comes first in the cascade, so a component rule wins a tie but has to match its specificity. Either way, avoid reusing a shared single-class name such as `page`, `lead`, `cards`, `contact`, or `approach` inside a component unless you mean to build on that rule.
+The shared stylesheets are adopted into every shadow root as well, so their rules also apply inside a component. They are all in cascade layers and a component stylesheet is not, so a component rule wins over any shared rule whatever its specificity: `elements.css` colours running text links with `p a`, and `site-footer` overrides that with a plain `a`, while a component that says nothing about links still gets the accent colour, as `section-contact` does for the fallback link in its action paragraph. Avoid reusing a shared class name such as `page`, `flow`, `lead`, `cards`, `contact`, or `approach` inside a component unless you mean to build on that rule.
 
 The component stylesheet is found by name, not by configuration. The editor takes the template path from the manifest, swaps `.html` for `.css`, and loads that file if it exists. So:
 
@@ -104,7 +109,31 @@ The component stylesheet is found by name, not by configuration. The editor take
 - A component without a stylesheet is fine.
 - The flat layout `src/components/<name>.html` with `src/components/<name>.css` beside it also works. This starter uses folders so that each component owns a directory.
 
-Keep design tokens such as colours and fonts as custom properties in `src/styles/site.css`. Components read them with `var(--accent)` and similar, so a token change reaches everything.
+## Shared stylesheets
+
+The shared styles are split by concern into four files. Each file holds one cascade layer with the same name, and the manifest lists them in layer order:
+
+```
+src/styles/tokens.css     @layer tokens     Custom properties: colours, type and space scales, radii, widths
+src/styles/elements.css   @layer elements   Plain HTML elements: body, headings, links, focus rings
+src/styles/layout.css     @layer layout     Page width, space between sections, .flow, .cards
+src/styles/sections.css   @layer sections   Sections written directly in a page: .hero, .lead, .approach, .contact
+```
+
+`tokens.css` starts with `@layer tokens, elements, layout, sections;`, which fixes the order, so keep it first in the manifest. A later layer wins over an earlier one whatever the specificity, and a component stylesheet, which is not in a layer, wins over all of them.
+
+To adjust the look, change a token. Components and the other shared files read `var(--accent)`, `var(--space-l)`, `var(--radius-l)`, `var(--text-2xl)` and so on, so one change in `tokens.css` reaches every page and component. Spacing is a scale from `--space-3xs` (4px) to `--space-5xl` (80px), and type runs from `--text-xs` (13px) to `--text-4xl`.
+
+Elements have no margins of their own. A section of text gets its spacing from the `flow` class, which puts a step of space between its children, with a little more after a heading:
+
+```html
+<section class="approach flow" data-key="approach">
+  <h2 data-key="approach-title">How we work</h2>
+  <p data-key="approach-1">…</p>
+</section>
+```
+
+Components space their own content with `gap`. Page rules for an element also reach it when a page slots it into a component, and the component cannot override them there, so margins on plain elements would leak into every component that takes slotted text.
 
 ## Links
 

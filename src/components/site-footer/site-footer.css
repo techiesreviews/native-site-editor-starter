@@ -2,11 +2,11 @@ footer {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  gap: 8px 24px;
+  gap: var(--space-2xs) var(--space-l);
   padding: 28px;
   background: var(--surface);
   color: var(--muted);
-  font-size: 14px;
+  font-size: var(--text-s);
 }
 
 p {

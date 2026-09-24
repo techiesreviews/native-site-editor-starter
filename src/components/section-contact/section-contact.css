@@ -5,16 +5,16 @@
 section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 32px;
-  border-radius: 16px;
+  gap: var(--space-xs);
+  padding: var(--space-xl);
+  border-radius: var(--radius-l);
   background: var(--surface);
   border-left: 4px solid var(--accent);
 }
 
 h2 {
   margin: 0;
-  font-size: 24px;
+  font-size: var(--text-2xl);
 }
 
 p {
@@ -22,7 +22,7 @@ p {
 }
 
 .body {
-  max-width: 64ch;
+  max-width: var(--reading-width);
   color: var(--muted);
   line-height: 1.55;
 }

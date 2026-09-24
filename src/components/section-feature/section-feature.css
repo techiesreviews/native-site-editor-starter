@@ -3,20 +3,20 @@
 }
 
 h2 {
-  margin: 0 0 20px;
-  font-size: 24px;
+  margin: 0 0 var(--space-m);
+  font-size: var(--text-2xl);
 }
 
 div {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
+  gap: var(--space-m);
 }
 
 div ::slotted(*) {
   margin: 0;
-  padding: 20px;
-  border-radius: 16px;
+  padding: var(--space-m);
+  border-radius: var(--radius-l);
   background: var(--surface);
   line-height: 1.55;
 }
