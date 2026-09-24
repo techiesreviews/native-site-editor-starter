@@ -1,6 +1,6 @@
 # Native Site Editor starter
 
-Sample site for Native Site Editor (https://editor.techies.tools, source in `~/Projects/native-site-editor`). The editor renders this site in the browser from plain HTML and CSS with no build step and saves selected files straight to the branch. Nothing here deploys a website.
+Sample site for Native Site Editor (https://editor.techies.tools, source in `~/Projects/native-site-editor`). The editor renders this site in the browser from plain HTML and CSS with no build step and saves selected files straight to the branch. A push to `main` (which is what the editor's Publish does) runs `.github/workflows/deploy.yml`: `node scripts/build.mjs` exports `dist/` and `wrangler deploy` uploads it to the test Cloudflare Worker `native-site-editor-starter-test`.
 
 ## Contract the editor depends on
 
@@ -11,6 +11,10 @@ Sample site for Native Site Editor (https://editor.techies.tools, source in `~/P
 - Site links use hash routes: `href="#/"`, `href="#/about/"`.
 - No `<script>`, inline `on*` handlers, or `javascript:` URLs; the preview strips them.
 - Keep `data-key` attributes on elements that change during editing, unique among siblings. They let the preview patch in place.
+
+## Static export
+
+`scripts/build.mjs` has no dependencies. It expands each custom element into declarative shadow DOM (`<template shadowrootmode="open">`) with the shared stylesheets followed by the component's own stylesheet, so the output matches the preview's cascade without any JavaScript. Hash links become paths (`#/about/` becomes `/about/`), `src/` asset paths become root-absolute, and `src/images/` is copied through. Keep the script in step with the contract above when it changes.
 
 ## Relationship to the editor repository
 

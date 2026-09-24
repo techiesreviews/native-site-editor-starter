@@ -24,7 +24,7 @@ a {
   padding: 48px 24px 80px;
 }
 
-.page section + section {
+.page > * + * {
   margin-top: 56px;
 }
 

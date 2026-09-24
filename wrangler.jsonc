@@ -1,0 +1,12 @@
+{
+  // Test deployment target for the exported site. The GitHub Actions workflow
+  // in .github/workflows/deploy.yml runs `node scripts/build.mjs` and deploys
+  // dist/ here on every push to main. Assets only; there is no Worker script.
+  "name": "native-site-editor-starter-test",
+  "compatibility_date": "2026-09-17",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash"
+  }
+}

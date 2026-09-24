@@ -2,7 +2,11 @@
 
 A small studio site built from plain HTML and CSS, ready to open in [Native Site Editor](https://editor.techies.tools). Fork or copy this repository, point the editor at it, and replace the copy with your own.
 
-The editor renders the site in the browser with no build step and saves the files you choose straight to a branch on GitHub. It does not deploy anything. No website deployment is configured for this repository; add your own hosting when you are ready to publish.
+The editor renders the site in the browser with no build step and saves the files you choose straight to a branch on GitHub. Publishing from the editor commits to `main`, and a GitHub Actions workflow then builds a static export and deploys it to a test Cloudflare Worker.
+
+## Deployment
+
+`.github/workflows/deploy.yml` runs on every push to `main`. It runs `node scripts/build.mjs`, which writes a standalone site to `dist/` (one `index.html` per route, components expanded into declarative shadow DOM, no JavaScript), then deploys `dist/` with `wrangler deploy` using `wrangler.jsonc`. The workflow needs two repository secrets: `CLOUDFLARE_API_TOKEN` (a token with the Workers Scripts Edit permission) and `CLOUDFLARE_ACCOUNT_ID`. Run the build locally with `node scripts/build.mjs` and open `dist/index.html` from any static server.
 
 ## Repository layout
 

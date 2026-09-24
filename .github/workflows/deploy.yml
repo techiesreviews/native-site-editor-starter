@@ -1,0 +1,34 @@
+# Builds the static export and deploys it to the test Cloudflare Worker on
+# every push to main, which is what the editor's Publish (Save to GitHub) does.
+# Requires two repository secrets: CLOUDFLARE_API_TOKEN (Workers Scripts:Edit)
+# and CLOUDFLARE_ACCOUNT_ID.
+name: Deploy test site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-test
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build static export
+        run: node scripts/build.mjs
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
