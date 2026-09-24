@@ -2,7 +2,7 @@
   display: block;
 }
 
-.contact-section {
+.section-contact {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -12,19 +12,19 @@
   border-left: 4px solid var(--accent);
 }
 
-.contact-section__title {
+.section-contact__title {
   margin: 0;
   font-size: 24px;
 }
 
-.contact-section__body {
+.section-contact__body {
   margin: 0;
   max-width: 64ch;
   color: var(--muted);
   line-height: 1.55;
 }
 
-.contact-section__action {
+.section-contact__action {
   margin: 0;
   font-weight: 600;
 }

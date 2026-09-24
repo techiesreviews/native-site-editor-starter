@@ -1,0 +1,13 @@
+<section class="section-split" data-key="section-split">
+  <div class="section-split__media" data-key="split-media">
+    <slot name="image"><img src="src/images/studio-desk.svg" alt="" data-key="split-image"></slot>
+  </div>
+  <div class="section-split__content" data-key="split-content">
+    <h2 class="section-split__title" data-key="split-title"><slot name="title">A short, clear headline.</slot></h2>
+    <p class="section-split__lede" data-key="split-lede"><slot name="lede">One or two sentences that say why this matters and what the reader gets.</slot></p>
+    <div class="section-split__actions" data-key="split-actions">
+      <slot name="primary"><a class="button" href="#/about/" data-key="split-primary">Get in touch</a></slot>
+      <slot name="secondary"><a class="button button--secondary" href="#/" data-key="split-secondary">See our work</a></slot>
+    </div>
+  </div>
+</section>

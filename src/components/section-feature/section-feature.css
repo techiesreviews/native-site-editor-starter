@@ -2,18 +2,18 @@
   display: block;
 }
 
-.feature-section__title {
+.section-feature__title {
   margin: 0 0 20px;
   font-size: 24px;
 }
 
-.feature-section__items {
+.section-feature__items {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 20px;
 }
 
-.feature-section__items ::slotted(*) {
+.section-feature__items ::slotted(*) {
   margin: 0;
   padding: 20px;
   border-radius: 16px;

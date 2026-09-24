@@ -5,9 +5,11 @@ Sample site for Native Site Editor (https://editor.techies.tools, source in `~/P
 ## Contract the editor depends on
 
 - `.astro-editor/native.json` at the root: `"version": 1`, `routes` (must include `"/"`; a route is a page path or `{ "file", "title", "description" }`), `components`, `styles`.
-- Route files match `src/pages/*.html`; component templates `src/components/<name>/<name>.html`; shared stylesheets `src/styles/*.css`. Custom-element tags are lowercase with a dash.
+- Route files match `src/pages/*.html`; component templates `src/components/<name>/<name>.html`; shared stylesheets `src/styles/*.css`. Custom-element tags are lowercase with a dash and are named *part*-*name*, where the part says what the component is: `section-intro`, `card-project`, `site-header`.
 - A component's own stylesheet is the sibling `.css` next to its template. It is not listed in the manifest and is injected only into that component's shadow root, after the shared styles.
 - Templates render into shadow DOM; use `<slot>` for page-supplied content.
+- Optional parts hide themselves. A template element that holds one or more `<slot>`s, has no text of its own, and whose slots the page left empty is hidden in the preview and left out of the static export, and so is a wrapper whose children are all such elements. A slot with fallback content in the template counts as content, so that element is always shown; leave the fallback out to make the part optional, as `card-project` does with its `link` slot.
+- `data-if="name other"` on a template element shows it only when the page assigned every named slot. A fallback does not count for `data-if`.
 - Site links use hash routes: `href="#/"`, `href="#/about/"`.
 - No `<script>`, inline `on*` handlers, or `javascript:` URLs; the preview strips them.
 - Keep `data-key` attributes on elements that change during editing, unique among siblings. They let the preview patch in place.

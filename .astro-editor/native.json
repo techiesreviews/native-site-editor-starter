@@ -15,12 +15,12 @@
   "components": {
     "site-header": "src/components/site-header/site-header.html",
     "site-footer": "src/components/site-footer/site-footer.html",
-    "project-card": "src/components/project-card/project-card.html",
+    "card-project": "src/components/card-project/card-project.html",
     "card-note": "src/components/card-note/card-note.html",
-    "intro-section": "src/components/intro-section/intro-section.html",
-    "feature-section": "src/components/feature-section/feature-section.html",
-    "contact-section": "src/components/contact-section/contact-section.html",
-    "split-section": "src/components/split-section/split-section.html"
+    "section-intro": "src/components/section-intro/section-intro.html",
+    "section-feature": "src/components/section-feature/section-feature.html",
+    "section-contact": "src/components/section-contact/section-contact.html",
+    "section-split": "src/components/section-split/section-split.html"
   },
   "styles": [
     "src/styles/site.css"

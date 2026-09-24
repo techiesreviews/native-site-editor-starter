@@ -43,7 +43,7 @@ src/images/                 Images, referenced as src/images/<file>
   "components": {
     "site-header": "src/components/site-header/site-header.html",
     "site-footer": "src/components/site-footer/site-footer.html",
-    "project-card": "src/components/project-card/project-card.html",
+    "card-project": "src/components/card-project/card-project.html",
     "card-note": "src/components/card-note/card-note.html"
   },
   "styles": ["src/styles/site.css"]
@@ -62,11 +62,12 @@ A page is an HTML fragment, not a full document. It uses the components declared
 ```html
 <site-header data-key="header"></site-header>
 <main class="page" data-key="main">
-  <project-card data-key="card-fern">
+  <card-project data-key="card-fern">
     <span slot="title">Fern &amp; Kettle</span>
     <span slot="note">Cafe · 2025</span>
     <p slot="body">A one-page site with a printable menu.</p>
-  </project-card>
+    <a slot="link" href="#/about/">Read the write-up</a>
+  </card-project>
 </main>
 <site-footer data-key="footer"></site-footer>
 ```
@@ -75,14 +76,22 @@ Give elements that you expect to edit a `data-key` attribute that is unique amon
 
 ## Components and their stylesheets
 
-Each component lives in its own folder, and the folder, the template, and the tag share one name:
+A component is named *part*-*name*, where the part says what it is: a `section-` component is a section of a page (`section-intro`, `section-split`), a `card-` component is a card or a piece of one (`card-project`, `card-note`), and `site-` is for the parts every page shares (`site-header`, `site-footer`). Each component lives in its own folder, and the folder, the template, and the tag share that one name:
 
 ```
-src/components/project-card/project-card.html   Template, listed in the manifest
-src/components/project-card/project-card.css    Styles for this component only
+src/components/card-project/card-project.html   Template, listed in the manifest
+src/components/card-project/card-project.css    Styles for this component only
 ```
 
-Templates render into a shadow root. Use `<slot>` for content the page supplies, with named slots for more than one region. A component can use other components, as `project-card` uses `card-note` for the small tag above each title.
+Templates render into a shadow root. Use `<slot>` for content the page supplies, with named slots for more than one region. A component can use other components, as `card-project` uses `card-note` for the small tag above each title.
+
+A part of a template that the page leaves empty is not shown. If an element holds one or more slots, has no text of its own, and the page assigned none of those slots, the editor hides it and the static export leaves it out; a wrapper whose children are all hidden that way goes too. A slot with fallback content in the template is never empty, so an element with a fallback is always shown. That is how a part is made optional: leave the fallback out. `card-project` ends with
+
+```html
+<p class="card-project__actions" data-key="card-actions"><slot name="link"></slot></p>
+```
+
+and only the one card on the home page that passes `<a slot="link" href="#/about/">…</a>` shows that paragraph. The other cards end after their description. An element can also carry `data-if="name other"` to be shown only when the page assigned every slot named there; a fallback does not count for `data-if`.
 
 The component stylesheet is found by name, not by configuration. The editor takes the template path from the manifest, swaps `.html` for `.css`, and loads that file if it exists. So:
 
