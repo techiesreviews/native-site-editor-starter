@@ -7,7 +7,7 @@ Private, isolated repository for real editor save verification. Files render as 
 ```
 .astro-editor/native.json   Manifest (version 1)
 src/pages/                  Route documents
-src/components/             Component documents and optional sibling CSS
+src/components/<name>/      One folder per component
 src/styles/                 Shared stylesheets
 ```
 
@@ -15,27 +15,37 @@ The manifest declares:
 
 - `version`: `1`.
 - `routes`: `/` → `src/pages/index.html` and `/about/` → `src/pages/about.html`.
-- `components`: `site-header`, `site-footer`, `project-card`, `card-note`.
+- `components`: `site-header`, `site-footer`, `project-card`, `card-note`, each pointing at `src/components/<name>/<name>.html`.
 - `styles`: shared stylesheets, currently `src/styles/site.css`.
 
 ## Shared styles
 
 Every stylesheet listed under the manifest's `styles` key is loaded into each shadow root. Use it for tokens and rules that should apply everywhere.
 
-## Sibling component CSS
+## One folder per component
 
-A component at `src/components/<name>.html` may have a sibling stylesheet at `src/components/<name>.css`. The convention is:
+Each component lives in its own folder under `src/components/`, and the folder, the HTML file, and the custom-element tag all share the same name:
 
-- Sibling CSS files are **not** listed in `.astro-editor/native.json`.
-- The editor resolves them by basename, swapping the `.html` extension for `.css` and looking the path up in the branch tree.
-- A sibling stylesheet is loaded on demand and injected only into that component's shadow root.
+```
+src/components/project-card/project-card.html   Template (listed in the manifest)
+src/components/project-card/project-card.css    Styles for this component only
+```
+
+Every component in this starter follows that layout: `site-header`, `site-footer`, `project-card`, and `card-note`. The folder is also where any other files belonging to that component go, so everything for one component stays in one place.
+
+The component's stylesheet is found by name, not by configuration:
+
+- Component CSS files are **not** listed in `.astro-editor/native.json`.
+- The editor takes the component's HTML path from the manifest and swaps the `.html` extension for `.css`, then looks that path up in the branch tree. In a component folder that resolves to the sibling file next to the template.
+- The stylesheet is loaded on demand and injected only into that component's shadow root, so `project-card.css` rules never reach `<site-header>`.
 - It is injected *after* the shared styles, so its rules can override them.
+- A component without a `.css` file is fine; the editor simply finds nothing and moves on.
 
-For example, `src/components/project-card.html` is paired with `src/components/project-card.css`; those rules apply to the `project-card` component only.
+Because the lookup is a plain extension swap, the older flat layout (`src/components/<name>.html` beside `src/components/<name>.css`) still works. This starter uses folders so that each component owns a directory.
 
 ## Links in the preview
 
-Links inside preview content must use a `#/route/` hash so that navigation works in the preview, for example `href="#/"` and `href="#/about/"`. See `src/components/site-header.html` for the pattern.
+Links inside preview content must use a `#/route/` hash so that navigation works in the preview, for example `href="#/"` and `href="#/about/"`. See `src/components/site-header/site-header.html` for the pattern.
 
 ## Working in the editor
 
