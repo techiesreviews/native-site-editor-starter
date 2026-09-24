@@ -1,0 +1,92 @@
+:host {
+  display: block;
+}
+
+.split-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+  padding: 32px;
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.split-section__media {
+  min-width: 0;
+}
+
+.split-section__media ::slotted(img),
+.split-section__media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 12px;
+  background: var(--page);
+}
+
+.split-section__content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.split-section__title {
+  margin: 0;
+  font-size: clamp(24px, 3vw, 34px);
+  line-height: 1.2;
+}
+
+.split-section__lede {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.split-section__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.button,
+.split-section__actions ::slotted(a) {
+  display: inline-block;
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  border: 2px solid var(--accent);
+}
+
+.button:hover,
+.split-section__actions ::slotted(a:hover) {
+  filter: brightness(0.92);
+}
+
+.button--secondary,
+.split-section__actions ::slotted([slot="secondary"]) {
+  background: transparent;
+  color: var(--accent);
+}
+
+.button--secondary:hover,
+.split-section__actions ::slotted([slot="secondary"]:hover) {
+  background: var(--page);
+  filter: none;
+}
+
+@media (max-width: 720px) {
+  .split-section {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 24px;
+  }
+}
