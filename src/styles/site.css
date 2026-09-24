@@ -15,9 +15,11 @@ body {
   line-height: 1.5;
 }
 
-/* Links in running text. Buttons and navigation set their own colour. */
-p a,
-li a {
+/* Links in running text. Buttons and navigation set their own colour.
+   :where() holds this at zero specificity, so it is a default: a component
+   overrides it with a plain `a` rule in its own shadow root, which the shared
+   stylesheets are adopted into as well. */
+:where(p a, li a) {
   color: var(--accent);
 }
 

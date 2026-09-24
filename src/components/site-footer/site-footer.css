@@ -13,12 +13,10 @@ p {
   margin: 0;
 }
 
-/* Two type selectors, so this wins over the shared `p a` rule that is adopted
-   into this shadow root too. */
-footer a {
+a {
   color: var(--muted);
 }
 
-footer a:hover {
+a:hover {
   color: var(--accent);
 }
