@@ -2,18 +2,18 @@
   display: block;
 }
 
-.section-feature__title {
+h2 {
   margin: 0 0 20px;
   font-size: 24px;
 }
 
-.section-feature__items {
+div {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 20px;
 }
 
-.section-feature__items ::slotted(*) {
+div ::slotted(*) {
   margin: 0;
   padding: 20px;
   border-radius: 16px;

@@ -88,10 +88,14 @@ Templates render into a shadow root. Use `<slot>` for content the page supplies,
 A part of a template that the page leaves empty is not shown. If an element holds one or more slots, has no text of its own, and the page assigned none of those slots, the editor hides it and the static export leaves it out; a wrapper whose children are all hidden that way goes too. A slot with fallback content in the template is never empty, so an element with a fallback is always shown. That is how a part is made optional: leave the fallback out. `card-project` ends with
 
 ```html
-<p class="card-project__actions" data-key="card-actions"><slot name="link"></slot></p>
+<p class="actions" data-key="card-actions"><slot name="link"></slot></p>
 ```
 
 and only the one card on the home page that passes `<a slot="link" href="#/about/">…</a>` shows that paragraph. The other cards end after their description. An element can also carry `data-if="name other"` to be shown only when the page assigned every slot named there; a fallback does not count for `data-if`.
+
+Because the stylesheet only ever reaches its own shadow root, a component styles itself with plain element selectors and needs no name-prefixed classes: `article`, `h3`, `nav a`. Add a short class such as `actions` or `body` only where two elements of the same tag need different rules. Nothing a component defines can reach the page or another component.
+
+The shared stylesheets are adopted into every shadow root as well, and they come first in the cascade, so a component rule wins a tie but has to match the shared rule's specificity to do so. `site.css` styles running text links with `p a`, so `site-footer` uses `footer a` rather than `a` to keep its links muted. For the same reason, avoid reusing a shared single-class name such as `page`, `lead`, `cards`, `contact`, or `approach` inside a component unless you mean to build on that rule.
 
 The component stylesheet is found by name, not by configuration. The editor takes the template path from the manifest, swaps `.html` for `.css`, and loads that file if it exists. So:
 

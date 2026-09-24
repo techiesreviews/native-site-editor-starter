@@ -1,4 +1,4 @@
-.site-header {
+header {
   position: sticky;
   top: 0;
   z-index: 2;
@@ -17,17 +17,17 @@
   text-decoration: none;
 }
 
-.site-nav {
+nav {
   display: flex;
   gap: 20px;
 }
 
-.site-nav a {
+nav a {
   color: var(--muted);
   text-decoration: none;
   font-weight: 600;
 }
 
-.site-nav a:hover {
+nav a:hover {
   color: var(--accent);
 }

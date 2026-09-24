@@ -2,7 +2,7 @@
   display: block;
 }
 
-.section-contact {
+section {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -12,19 +12,21 @@
   border-left: 4px solid var(--accent);
 }
 
-.section-contact__title {
+h2 {
   margin: 0;
   font-size: 24px;
 }
 
-.section-contact__body {
+p {
   margin: 0;
+}
+
+.body {
   max-width: 64ch;
   color: var(--muted);
   line-height: 1.55;
 }
 
-.section-contact__action {
-  margin: 0;
+.action {
   font-weight: 600;
 }

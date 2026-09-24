@@ -1,4 +1,4 @@
-.site-footer {
+footer {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
@@ -9,14 +9,16 @@
   font-size: 14px;
 }
 
-.site-footer p {
+p {
   margin: 0;
 }
 
-.site-footer a {
+/* Two type selectors, so this wins over the shared `p a` rule that is adopted
+   into this shadow root too. */
+footer a {
   color: var(--muted);
 }
 
-.site-footer a:hover {
+footer a:hover {
   color: var(--accent);
 }

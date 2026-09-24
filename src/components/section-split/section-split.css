@@ -2,7 +2,7 @@
   display: block;
 }
 
-.section-split {
+section {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 40px;
@@ -12,12 +12,12 @@
   background: var(--surface);
 }
 
-.section-split__media {
+.media {
   min-width: 0;
 }
 
-.section-split__media ::slotted(img),
-.section-split__media img {
+.media ::slotted(img),
+.media img {
   display: block;
   width: 100%;
   height: auto;
@@ -27,35 +27,36 @@
   background: var(--page);
 }
 
-.section-split__content {
+.content {
   display: flex;
   flex-direction: column;
   gap: 16px;
   min-width: 0;
 }
 
-.section-split__title {
+h2 {
   margin: 0;
   font-size: clamp(24px, 3vw, 34px);
   line-height: 1.2;
 }
 
-.section-split__lede {
+p {
   margin: 0;
   font-size: 18px;
   line-height: 1.6;
   color: var(--muted);
 }
 
-.section-split__actions {
+.actions {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 8px;
 }
 
-.button,
-.section-split__actions ::slotted(a) {
+/* Both buttons: the template's own fallback links and the ones a page slots in. */
+.actions a,
+.actions ::slotted(a) {
   display: inline-block;
   padding: 12px 20px;
   border-radius: 999px;
@@ -66,25 +67,25 @@
   border: 2px solid var(--accent);
 }
 
-.button:hover,
-.section-split__actions ::slotted(a:hover) {
+.actions a:hover,
+.actions ::slotted(a:hover) {
   filter: brightness(0.92);
 }
 
-.button--secondary,
-.section-split__actions ::slotted([slot="secondary"]) {
+slot[name="secondary"] a,
+.actions ::slotted([slot="secondary"]) {
   background: transparent;
   color: var(--accent);
 }
 
-.button--secondary:hover,
-.section-split__actions ::slotted([slot="secondary"]:hover) {
+slot[name="secondary"] a:hover,
+.actions ::slotted([slot="secondary"]:hover) {
   background: var(--page);
   filter: none;
 }
 
 @media (max-width: 720px) {
-  .section-split {
+  section {
     grid-template-columns: 1fr;
     gap: 24px;
     padding: 24px;

@@ -2,14 +2,24 @@
   display: block;
 }
 
-.section-intro {
+section {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.section-intro__eyebrow {
+p {
   margin: 0;
+}
+
+h2 {
+  margin: 0;
+  font-size: clamp(24px, 3vw, 34px);
+  line-height: 1.2;
+  max-width: 28ch;
+}
+
+.eyebrow {
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -17,15 +27,10 @@
   color: var(--accent);
 }
 
-.section-intro__title {
-  margin: 0;
-  font-size: clamp(24px, 3vw, 34px);
-  line-height: 1.2;
-  max-width: 28ch;
-}
-
-.section-intro__lead {
-  margin: 0;
+/* Deliberately the same name as a page lead paragraph, whose shared rule is
+   adopted into this shadow root too. The values restate it, so this section
+   keeps its look even if the page style changes. */
+.lead {
   max-width: 64ch;
   font-size: 18px;
   line-height: 1.6;
