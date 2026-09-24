@@ -1,7 +1,22 @@
 .site-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 24px;
+  padding: 28px;
+  background: var(--surface);
+  color: var(--muted);
   font-size: 14px;
 }
 
 .site-footer p {
   margin: 0;
+}
+
+.site-footer a {
+  color: var(--muted);
+}
+
+.site-footer a:hover {
+  color: var(--accent);
 }
