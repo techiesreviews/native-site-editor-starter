@@ -6,16 +6,14 @@ The editor renders the site in the browser with no build step and saves the file
 
 ## Deployment
 
-`.github/workflows/deploy.yml` runs on every push to `main`. It runs `node scripts/build.mjs`, which writes a standalone site to `dist/` (one `index.html` per route, components expanded into declarative shadow DOM, no JavaScript, hashed stylesheet and image files under `dist/assets/`), then deploys `dist/` with `wrangler deploy` using `wrangler.jsonc`. The workflow needs two repository secrets: `CLOUDFLARE_API_TOKEN` (a token with the Workers Scripts Edit permission) and `CLOUDFLARE_ACCOUNT_ID`. Run the build locally with `node scripts/build.mjs` and serve `dist/` from any static server.
+`.github/workflows/deploy.yml` runs on every push to `main`. It fetches the editor's static exporter from `https://editor.techies.tools/native-export.mjs` and runs it, which writes a standalone site to `dist/` (one `index.html` per route, components expanded into declarative shadow DOM, no JavaScript, hashed stylesheet and image files under `dist/assets/`), then deploys `dist/` with `wrangler deploy` using `wrangler.jsonc`. The workflow needs two repository secrets: `CLOUDFLARE_API_TOKEN` (a token with the Workers Scripts Edit permission) and `CLOUDFLARE_ACCOUNT_ID`. The export rules belong to the editor, so this repository has no build script; run the same export locally with:
 
-Site-wide metadata for the export (name, canonical URL, description, theme colour, favicon, social image) lives in `.astro-editor/site.json`. Each page can start with a comment that sets its own title and description:
-
-```html
-<!--
-title: About
-description: Who we are and how to get in touch.
--->
+```sh
+curl -fsSL https://editor.techies.tools/native-export.mjs -o native-export.mjs
+node native-export.mjs --out dist
 ```
+
+Site-wide metadata for the export (name, canonical URL, description, theme colour, favicon, social image) lives in `.astro-editor/site.json`. Each route's title and description live in the manifest (see below). A page may instead start with a comment of `title:` and `description:` lines; without either, the page's first `h1` and `p` are used.
 
 ## Repository layout
 
@@ -25,7 +23,6 @@ src/pages/                  One HTML file per route
 src/components/<name>/      One folder per component, template plus its stylesheet
 src/styles/                 Stylesheets shared by every page and component
 src/images/                 Images, referenced as src/images/<file>
-scripts/build.mjs           Static export used by the deploy workflow
 ```
 
 ## The manifest
@@ -36,7 +33,11 @@ scripts/build.mjs           Static export used by the deploy workflow
 {
   "version": 1,
   "routes": {
-    "/": "src/pages/index.html",
+    "/": {
+      "file": "src/pages/index.html",
+      "title": "Larkspur Studio",
+      "description": "A two-person design studio for small, useful websites."
+    },
     "/about/": "src/pages/about.html"
   },
   "components": {
@@ -50,7 +51,7 @@ scripts/build.mjs           Static export used by the deploy workflow
 ```
 
 - `version` is always `1`.
-- `routes` maps a URL path to a page file under `src/pages/`. The `/` route is required. To add a page, create the file and add a route here.
+- `routes` maps a URL path to a page file under `src/pages/`, either as the path alone or as an object with `file` plus an optional `title` and `description` that the static export puts in the page head. The `/` route is required. To add a page, create the file and add a route here.
 - `components` maps a custom-element tag to its template under `src/components/`. Tags must be lowercase and contain a dash.
 - `styles` lists shared stylesheets under `src/styles/`. They are loaded into the page and into every component.
 

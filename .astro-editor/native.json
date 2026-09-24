@@ -1,8 +1,16 @@
 {
   "version": 1,
   "routes": {
-    "/": "src/pages/index.html",
-    "/about/": "src/pages/about.html"
+    "/": {
+      "file": "src/pages/index.html",
+      "title": "Larkspur Studio",
+      "description": "A two-person design studio for small, useful websites. Plain HTML and CSS you can read, edit, and own."
+    },
+    "/about/": {
+      "file": "src/pages/about.html",
+      "title": "About",
+      "description": "Larkspur is run by a designer and a front-end developer who build small websites by hand. Get in touch about a project."
+    }
   },
   "components": {
     "site-header": "src/components/site-header/site-header.html",
@@ -14,5 +22,7 @@
     "contact-section": "src/components/contact-section/contact-section.html",
     "split-section": "src/components/split-section/split-section.html"
   },
-  "styles": ["src/styles/site.css"]
+  "styles": [
+    "src/styles/site.css"
+  ]
 }

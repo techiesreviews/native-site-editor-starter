@@ -24,8 +24,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      # The export rules live in the editor, so every site gets the same
+      # output without keeping a build script of its own.
+      - name: Fetch the editor's static exporter
+        run: curl -fsSL https://editor.techies.tools/native-export.mjs -o /tmp/native-export.mjs
       - name: Build static export
-        run: node scripts/build.mjs
+        run: node /tmp/native-export.mjs --out dist
       - name: Deploy to Cloudflare Workers
         run: npx --yes wrangler@4 deploy
         env:
