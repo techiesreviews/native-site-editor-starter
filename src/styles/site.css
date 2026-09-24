@@ -4,6 +4,7 @@
   --surface: #ffffff;
   --page: #f6f7f3;
   --accent: #2f6d3a;
+  --line: #e2e6de;
 }
 
 body {
@@ -14,8 +15,17 @@ body {
   line-height: 1.5;
 }
 
-a {
+/* Links in running text. Buttons and navigation set their own colour. */
+p a,
+li a {
   color: var(--accent);
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
 .page {

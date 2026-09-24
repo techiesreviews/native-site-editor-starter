@@ -1,0 +1,9 @@
+{
+  "name": "Larkspur Studio",
+  "url": "https://native-site-editor-starter-test.lexvd.workers.dev",
+  "description": "Larkspur is a two-person design studio for small, useful websites built from plain HTML and CSS.",
+  "themeColor": "#2f6d3a",
+  "favicon": "src/images/favicon.svg",
+  "image": "src/images/studio-desk.svg",
+  "locale": "en_GB"
+}

@@ -6,7 +6,16 @@ The editor renders the site in the browser with no build step and saves the file
 
 ## Deployment
 
-`.github/workflows/deploy.yml` runs on every push to `main`. It runs `node scripts/build.mjs`, which writes a standalone site to `dist/` (one `index.html` per route, components expanded into declarative shadow DOM, no JavaScript), then deploys `dist/` with `wrangler deploy` using `wrangler.jsonc`. The workflow needs two repository secrets: `CLOUDFLARE_API_TOKEN` (a token with the Workers Scripts Edit permission) and `CLOUDFLARE_ACCOUNT_ID`. Run the build locally with `node scripts/build.mjs` and open `dist/index.html` from any static server.
+`.github/workflows/deploy.yml` runs on every push to `main`. It runs `node scripts/build.mjs`, which writes a standalone site to `dist/` (one `index.html` per route, components expanded into declarative shadow DOM, no JavaScript, hashed stylesheet and image files under `dist/assets/`), then deploys `dist/` with `wrangler deploy` using `wrangler.jsonc`. The workflow needs two repository secrets: `CLOUDFLARE_API_TOKEN` (a token with the Workers Scripts Edit permission) and `CLOUDFLARE_ACCOUNT_ID`. Run the build locally with `node scripts/build.mjs` and serve `dist/` from any static server.
+
+Site-wide metadata for the export (name, canonical URL, description, theme colour, favicon, social image) lives in `.astro-editor/site.json`. Each page can start with a comment that sets its own title and description:
+
+```html
+<!--
+title: About
+description: Who we are and how to get in touch.
+-->
+```
 
 ## Repository layout
 
@@ -15,6 +24,8 @@ The editor renders the site in the browser with no build step and saves the file
 src/pages/                  One HTML file per route
 src/components/<name>/      One folder per component, template plus its stylesheet
 src/styles/                 Stylesheets shared by every page and component
+src/images/                 Images, referenced as src/images/<file>
+scripts/build.mjs           Static export used by the deploy workflow
 ```
 
 ## The manifest

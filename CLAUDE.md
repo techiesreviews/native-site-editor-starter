@@ -14,7 +14,10 @@ Sample site for Native Site Editor (https://editor.techies.tools, source in `~/P
 
 ## Static export
 
-`scripts/build.mjs` has no dependencies. It expands each custom element into declarative shadow DOM (`<template shadowrootmode="open">`) with the shared stylesheets followed by the component's own stylesheet, so the output matches the preview's cascade without any JavaScript. Hash links become paths (`#/about/` becomes `/about/`), `src/` asset paths become root-absolute, and `src/images/` is copied through. Keep the script in step with the contract above when it changes.
+`scripts/build.mjs` has no dependencies. It expands each custom element into declarative shadow DOM (`<template shadowrootmode="open">`) that links the shared stylesheets and inlines the component's own stylesheet, so the output matches the preview's cascade without any JavaScript. Hash links become paths (`#/about/` becomes `/about/`), and the nav link for the current route gets `aria-current="page"`. Shared stylesheets and `src/images/` are written to `dist/assets/` with content-hashed names and immutable cache headers via `dist/_headers`; HTML is `max-age=0`. Images get `width`/`height` from the file and `loading="lazy"` after the first section. Keep the script in step with the contract above when it changes.
+
+- `.astro-editor/site.json` holds site-level metadata for the export only: `name`, `url` (canonical base, overridable with `SITE_URL`), `description`, `themeColor`, `favicon`, `image` (Open Graph), `locale`. The editor ignores it.
+- A page may start with a comment of `key: value` lines (`title`, `description`, `image`) that the export reads for the head and strips from the output. Without it, the first `h1` and `p` are used.
 
 ## Relationship to the editor repository
 
