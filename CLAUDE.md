@@ -4,8 +4,9 @@ Sample site for Native Site Editor (https://editor.techies.tools, source in `~/P
 
 ## Contract the editor depends on
 
-- `.astro-editor/native.json` at the root: `"version": 1`, `routes` (must include `"/"`; a route is a page path or `{ "file", "title", "description" }`), `components`, `styles`.
-- Route files match `src/pages/*.html`; component templates `src/components/<name>/<name>.html`; shared stylesheets `src/styles/*.css`. Custom-element tags are lowercase with a dash and are named *part*-*name*, where the part says what the component is: `section-intro`, `card-project`, `site-header`.
+- `.astro-editor/native.json` at the root: `"version": 1`, `routes` (optional page metadata keyed by URL: `{ "title", "description", "jsonLd" }`), `components`, `styles`.
+- Pages are routed by where their file is: every `.html` file under `src/pages/`, at any depth, is a page. `index.html` is `/`, `<dir>/index.html` is `/<dir>/`, and `<path>.html` is `/<path>/`, so the folders mirror the site's URLs. Names starting with `_` are not pages. A route entry with `"file"` still maps a URL to a file by hand, but this site does not use it.
+- Component templates are `src/components/<name>/<name>.html`; shared stylesheets `src/styles/*.css`. Custom-element tags are lowercase with a dash and are named *part*-*name*, where the part says what the component is: `section-intro`, `card-project`, `site-header`.
 - A component's own stylesheet is the sibling `.css` next to its template. It is not listed in the manifest and is injected only into that component's shadow root, after the shared styles.
 - Component styles are scoped, so components use element selectors (`article`, `nav a`) and a short class only to tell same-tag siblings apart (`actions`, `body`); no name-prefixed BEM classes. The shared stylesheets are adopted into each shadow root too, but they are all in cascade layers and component CSS is not, so any component rule beats any shared rule (`site-footer`'s plain `a` over `p a` in `elements.css`). Shared class names such as `page`, `flow`, `lead`, `cards`, `contact`, or `approach` should not be reused inside a component by accident.
 - Shared styles are one file per cascade layer, listed in `native.json` `styles` in layer order: `tokens.css` (custom properties; starts with the `@layer tokens, elements, layout, sections;` order statement, so it stays first), `elements.css`, `layout.css`, `sections.css`. No `@import`: the editor applies each file with `replaceSync`, which ignores it. Values come from tokens (`--space-*`, `--text-*`, `--radius-*`, colours), in components too.
@@ -17,7 +18,7 @@ Sample site for Native Site Editor (https://editor.techies.tools, source in `~/P
 - `data-if="name other"` on a template element shows it only when the page assigned every named slot. A fallback does not count for `data-if`.
 - Site links use hash routes: `href="#/"`, `href="#/about/"`. A section within a page is `#/about/#contact` (or `#work` on the same page), pointing at an `id` on that section.
 - Every page's `<main>` has `id="main"`; `site-header` starts with the "Skip to content" link to it. `site-header` and `site-footer` pad their sides to line up with `--page-width`.
-- `src/pages/404.html` is the not-found page, routed as `/404/`. The work pages are `src/pages/work-<slug>.html` at `/work/<slug>/`.
+- `src/pages/404.html` is the not-found page, routed as `/404/`. The work pages are `src/pages/work/<slug>.html` at `/work/<slug>/`; new pages under a URL go in the matching folder (`/videos/intro/` is `src/pages/videos/intro.html`).
 - Page-level button rows use `.cta` and numbered steps use `ol.steps` (both in `sections.css`).
 - No `<script>`, inline `on*` handlers, or `javascript:` URLs; the preview strips them.
 - Keep `data-key` attributes on elements that change during editing, unique among siblings. They let the preview patch in place.

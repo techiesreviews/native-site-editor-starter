@@ -31,7 +31,7 @@ Site-wide metadata lives in `.astro-editor/site.json`: name, canonical URL, desc
 
 ```
 .astro-editor/native.json   Manifest the editor reads first
-src/pages/                  One HTML file per route, including 404.html
+src/pages/                  One HTML file per page; folders mirror the URLs (work/ holds /work/…)
 src/components/<name>/      One folder per component, template plus its stylesheet
 src/styles/                 Shared stylesheets, one per cascade layer
 src/images/                 Images, referenced as src/images/<file>
@@ -46,11 +46,10 @@ src/images/                 Images, referenced as src/images/<file>
   "version": 1,
   "routes": {
     "/": {
-      "file": "src/pages/index.html",
       "title": "Larkspur Studio",
       "description": "A two-person design studio for small, useful websites."
     },
-    "/about/": "src/pages/about.html"
+    "/about/": { "title": "About" }
   },
   "components": {
     "site-header": "src/components/site-header/site-header.html",
@@ -67,10 +66,11 @@ src/images/                 Images, referenced as src/images/<file>
 }
 ```
 
-The starter's own manifest also has three case-study routes under `/work/` and a `/404/` route for `src/pages/404.html`, the page shown for addresses that do not exist.
+The starter's own manifest also has titles for the three case studies in `src/pages/work/` and for the `/404/` page, `src/pages/404.html`, which is shown for addresses that do not exist.
 
 - `version` is always `1`.
-- `routes` maps a URL path to a page file under `src/pages/`, either as the path alone or as an object with `file` plus an optional `title` and `description` that the static export puts in the page head. The `/` route is required. To add a page, create the file and add a route here.
+- Pages need no entry: every `.html` file under `src/pages/` is a page at the URL its path gives. `index.html` is `/`, `about.html` is `/about/`, `work/fern-and-kettle.html` is `/work/fern-and-kettle/`, and `work/index.html` would be `/work/`. To add a page, create the file in the folder that matches its URL (the editor's New page does this for you). `src/pages/index.html` is required.
+- `routes` holds each page's `title` and `description`, keyed by URL, which the static export puts in the page head, plus an optional `jsonLd`. An entry may still name a `file` to map a URL to a page by hand.
 - `components` maps a custom-element tag to its template under `src/components/`. Tags must be lowercase and contain a dash.
 - `styles` lists shared stylesheets under `src/styles/`, in order. They are loaded into the page and into every component. List each file here rather than using `@import`: the editor applies each one as a constructed stylesheet, which ignores `@import`.
 
