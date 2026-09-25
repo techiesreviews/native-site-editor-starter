@@ -1,10 +1,19 @@
+/* Fills its grid cell, so every card in a row is as tall as the tallest and
+   the link paragraph lines up along the bottom. */
+:host {
+  display: block;
+}
+
 article {
+  box-sizing: border-box;
+  height: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
   padding: var(--space-l);
   border-radius: var(--radius-l);
   background: var(--surface);
+  border: 1px solid var(--line);
 }
 
 h3 {
@@ -23,9 +32,11 @@ p {
 }
 
 /* Shown only on cards whose page passes a link. The slot has no fallback, so
-   the editor and the export leave this paragraph out of the other cards. */
+   the editor and the export leave this paragraph out of the other cards. The
+   auto margin pushes it to the bottom of the card. */
 .actions {
-  margin-top: var(--space-3xs);
+  margin-top: auto;
+  padding-top: var(--space-3xs);
   font-weight: 600;
 }
 

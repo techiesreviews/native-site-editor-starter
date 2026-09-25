@@ -1,27 +1,30 @@
 <site-header data-key="header"></site-header>
-<main class="page" data-key="main">
+<main class="page" id="main" data-key="main">
   <section class="hero flow" data-key="hero">
     <h1 data-key="hero-title">Larkspur is a two-person design studio for small, useful websites.</h1>
     <p class="lead" data-key="hero-lead">We work with independent shops, studios, and community groups that need a clear site and a calm way to keep it up to date. Everything we build is plain HTML and CSS you can read.</p>
+    <p class="cta" data-key="hero-cta"><a href="#/about/#contact" data-key="hero-primary">Start a project</a> <a href="#work" data-key="hero-secondary">See our work</a></p>
   </section>
-  <section class="work flow" data-key="work">
+  <section class="work flow" id="work" data-key="work">
     <h2 data-key="work-title">Selected work</h2>
     <div class="cards" data-key="cards">
       <card-project data-key="card-fern">
         <span slot="title">Fern &amp; Kettle</span>
         <span slot="note">Cafe · Identity and site · 2025</span>
         <p slot="body">A neighbourhood cafe needed a menu that the owners could change themselves before opening each morning. We designed a one-page site with a printable menu and a simple booking link.</p>
-        <a slot="link" href="#/about/" data-key="card-fern-link">Read the write-up</a>
+        <a slot="link" href="#/work/fern-and-kettle/" data-key="card-fern-link">Read the Fern &amp; Kettle write-up</a>
       </card-project>
       <card-project data-key="card-harbour">
         <span slot="title">Harbour Lane Pottery</span>
         <span slot="note">Ceramics studio · Portfolio · 2025</span>
         <p slot="body">A working potter wanted a quiet place to show finished pieces and announce kiln openings. Large photographs, short captions, and a dates page that takes minutes to update.</p>
+        <a slot="link" href="#/work/harbour-lane-pottery/" data-key="card-harbour-link">Read the Harbour Lane Pottery write-up</a>
       </card-project>
       <card-project data-key="card-meadow">
         <span slot="title">Meadow Row Allotments</span>
         <span slot="note">Community group · Notices and rules · 2024</span>
         <p slot="body">Forty plot holders share one noticeboard. We turned a pile of photocopied rules into a small site with a plot map, seasonal notices, and a contact page for the committee.</p>
+        <a slot="link" href="#/work/meadow-row-allotments/" data-key="card-meadow-link">Read the Meadow Row Allotments write-up</a>
       </card-project>
     </div>
   </section>
@@ -29,13 +32,26 @@
     <img slot="image" src="src/images/studio-desk.svg" alt="Printed page layouts, a pencil, and a mug on a studio desk" data-key="split-image">
     <span slot="title">Small sites, built to be kept.</span>
     <span slot="lede">We design and hand-build websites that you can read, edit, and own outright. No platform, no subscription, no surprises.</span>
-    <a slot="primary" href="#/about/" data-key="split-primary">Start a project</a>
-    <a slot="secondary" href="#/" data-key="split-secondary">See our work</a>
+    <a slot="primary" href="#/about/#contact" data-key="split-primary">Start a project</a>
+    <a slot="secondary" href="#work" data-key="split-secondary">See our work</a>
   </section-split>
   <section class="approach flow" data-key="approach">
     <h2 data-key="approach-title">How we work</h2>
-    <p data-key="approach-1">We start with a conversation about what the site has to do, then write the pages in plain language before any design work. Most projects take four to six weeks from first call to launch.</p>
-    <p data-key="approach-2">You get the files, not a subscription. Sites are built so that changing a sentence, a price, or an opening time is an edit, not a support ticket.</p>
+    <p data-key="approach-1">Most projects take four to six weeks from first call to launch, in three steps.</p>
+    <ol class="steps" data-key="approach-steps">
+      <li data-key="step-1">
+        <h3 data-key="step-1-title">Talk it through</h3>
+        <p data-key="step-1-body">We start with a conversation about what the site has to do, who reads it, and what you want to change yourself.</p>
+      </li>
+      <li data-key="step-2">
+        <h3 data-key="step-2-title">Write, then design</h3>
+        <p data-key="step-2-body">We write the pages in plain language before any design work, so the design serves the words.</p>
+      </li>
+      <li data-key="step-3">
+        <h3 data-key="step-3-title">Build and hand over</h3>
+        <p data-key="step-3-body">You get the files, not a subscription. Changing a sentence, a price, or an opening time is an edit, not a support ticket.</p>
+      </li>
+    </ol>
   </section>
 </main>
 <site-footer data-key="footer"></site-footer>

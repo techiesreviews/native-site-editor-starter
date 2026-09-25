@@ -13,13 +13,13 @@ curl -fsSL https://editor.techies.tools/native-export.mjs -o native-export.mjs
 node native-export.mjs --out dist
 ```
 
-Site-wide metadata for the export (name, canonical URL, description, theme colour, favicon, social image) lives in `.astro-editor/site.json`. Each route's title and description live in the manifest (see below). A page may instead start with a comment of `title:` and `description:` lines; without either, the page's first `h1` and `p` are used.
+Site-wide metadata for the export (name, canonical URL, description, theme colour, favicon, social image and its `imageAlt`, locale) lives in `.astro-editor/site.json`. It also holds `indexable` (`false` here, because the test domain should stay out of search results), `contentSignals`, and `organization`, a schema.org object for the site's JSON-LD. The exporter currently published at `native-export.mjs` reads only the first group and ignores the rest, so until it catches up the workflow does two things itself after the export: it copies `dist/404/index.html` to `dist/404.html`, which Cloudflare serves for unknown paths (`not_found_handling` in `wrangler.jsonc`), and it adds `X-Robots-Tag: noindex` to every response. Each route's title and description live in the manifest (see below). A page may instead start with a comment of `title:` and `description:` lines; without either, the page's first `h1` and `p` are used.
 
 ## Repository layout
 
 ```
 .astro-editor/native.json   Manifest the editor reads first
-src/pages/                  One HTML file per route
+src/pages/                  One HTML file per route, including 404.html
 src/components/<name>/      One folder per component, template plus its stylesheet
 src/styles/                 Shared stylesheets, one per cascade layer
 src/images/                 Images, referenced as src/images/<file>
@@ -55,6 +55,8 @@ src/images/                 Images, referenced as src/images/<file>
 }
 ```
 
+The starter's own manifest also has three case-study routes under `/work/` and a `/404/` route for `src/pages/404.html`, the page shown for addresses that do not exist.
+
 - `version` is always `1`.
 - `routes` maps a URL path to a page file under `src/pages/`, either as the path alone or as an object with `file` plus an optional `title` and `description` that the static export puts in the page head. The `/` route is required. To add a page, create the file and add a route here.
 - `components` maps a custom-element tag to its template under `src/components/`. Tags must be lowercase and contain a dash.
@@ -66,16 +68,18 @@ A page is an HTML fragment, not a full document. It uses the components declared
 
 ```html
 <site-header data-key="header"></site-header>
-<main class="page" data-key="main">
+<main class="page" id="main" data-key="main">
   <card-project data-key="card-fern">
     <span slot="title">Fern &amp; Kettle</span>
     <span slot="note">Cafe · 2025</span>
     <p slot="body">A one-page site with a printable menu.</p>
-    <a slot="link" href="#/about/">Read the write-up</a>
+    <a slot="link" href="#/work/fern-and-kettle/">Read the Fern &amp; Kettle write-up</a>
   </card-project>
 </main>
 <site-footer data-key="footer"></site-footer>
 ```
+
+Every page's `<main>` has `id="main"`: the first thing in `site-header` is a "Skip to content" link that points there and stays off screen until it has keyboard focus.
 
 Give elements that you expect to edit a `data-key` attribute that is unique among its siblings. The editor uses these keys to update the preview in place while you type instead of re-rendering the page.
 
@@ -96,7 +100,7 @@ A part of a template that the page leaves empty is not shown. If an element hold
 <p class="actions" data-key="card-actions"><slot name="link"></slot></p>
 ```
 
-and only the one card on the home page that passes `<a slot="link" href="#/about/">…</a>` shows that paragraph. The other cards end after their description. An element can also carry `data-if="name other"` to be shown only when the page assigned every slot named there; a fallback does not count for `data-if`.
+and only a card whose page passes `<a slot="link" href="#/work/fern-and-kettle/">…</a>` shows that paragraph; a card without one ends after its description. Cards in a row are the same height, and the link sits at the bottom of each. An element can also carry `data-if="name other"` to be shown only when the page assigned every slot named there; a fallback does not count for `data-if`.
 
 The editor's "Add to the page" buttons offer only components whose template is exactly one `<section>` element, with nothing before or after it, so every `section-` component keeps to that shape. Cards, the header and the footer are never offered, and nothing can be added inside a section. When a section is added, each named slot whose fallback is text and inline markup (`a`, `strong`, `em` and the like) gets its own copy in the page, so typing in it changes that page only. A slot whose fallback is block content, such as a paragraph, a list or an image, stays with the template, and so does an unnamed slot. That is why `section-feature` has a fixed set of named slots (`title`, then `item-1-title`, `item-1-body` up to `item-3-body`) rather than one slot for a list of items.
 
@@ -121,12 +125,12 @@ The shared styles are split by concern into four files. Each file holds one casc
 src/styles/tokens.css     @layer tokens     Custom properties: colours, type and space scales, radii, widths
 src/styles/elements.css   @layer elements   Plain HTML elements: body, headings, links, focus rings
 src/styles/layout.css     @layer layout     Page width, space between sections, .flow, .cards
-src/styles/sections.css   @layer sections   Sections written directly in a page: .hero, .lead, .approach, .contact
+src/styles/sections.css   @layer sections   Sections written directly in a page: .hero, .lead, .cta, .steps, .approach, .contact
 ```
 
 `tokens.css` starts with `@layer tokens, elements, layout, sections;`, which fixes the order, so keep it first in the manifest. A later layer wins over an earlier one whatever the specificity, and a component stylesheet, which is not in a layer, wins over all of them.
 
-To adjust the look, change a token. Components and the other shared files read `var(--accent)`, `var(--space-l)`, `var(--radius-l)`, `var(--text-2xl)` and so on, so one change in `tokens.css` reaches every page and component. Spacing is a scale from `--space-3xs` (4px) to `--space-5xl` (80px), and type runs from `--text-xs` (13px) to `--text-4xl`.
+To adjust the look, change a token. Components and the other shared files read `var(--accent)`, `var(--space-l)`, `var(--radius-l)`, `var(--text-2xl)` and so on, so one change in `tokens.css` reaches every page and component. Spacing is a scale from `--space-3xs` (4px) to `--space-5xl` (80px), and type runs from `--text-s` (14px, the smallest size used) to `--text-4xl`. The font stack is system fonts only; no webfont is loaded.
 
 Elements have no margins of their own. A section of text gets its spacing from the `flow` class, which puts a step of space between its children, with a little more after a heading:
 
@@ -137,11 +141,13 @@ Elements have no margins of their own. A section of text gets its spacing from t
 </section>
 ```
 
+Two more page classes live in `sections.css`. `.cta` is a row of buttons, as under the home hero: the first link is the main action and any after it are outlined. `.steps` is an `<ol>` of numbered steps laid out in a row, as in "How we work". Neither name is used inside a component.
+
 Components space their own content with `gap`. Page rules for an element also reach it when a page slots it into a component, and the component cannot override them there, so margins on plain elements would leak into every component that takes slotted text.
 
 ## Links
 
-Links between pages use hash routes so that navigation works inside the editor's preview: `href="#/"` for the home page and `href="#/about/"` for the about page. The route part matches a key in the manifest's `routes` map. External links and `mailto:` links work as usual.
+Links between pages use hash routes so that navigation works inside the editor's preview: `href="#/"` for the home page and `href="#/about/"` for the about page. The route part matches a key in the manifest's `routes` map. To link to a part of a page, give its section an `id` and add it after the route: `href="#/about/#contact"`, or `href="#work"` for a section on the same page. The export turns these into `/about/#contact` and `#work`; in the preview they do not navigate. External links and `mailto:` links work as usual.
 
 ## What the preview does not run
 

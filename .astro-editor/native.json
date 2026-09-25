@@ -3,13 +3,33 @@
   "routes": {
     "/": {
       "file": "src/pages/index.html",
-      "title": "Larkspur Studio",
-      "description": "A two-person design studio for small, useful websites. Plain HTML and CSS you can read, edit, and own."
+      "title": "Small, editable websites for independent businesses",
+      "description": "Larkspur is a two-person design studio in Frome, Somerset, building small, useful websites in plain HTML and CSS you can read, edit, and own."
     },
     "/about/": {
       "file": "src/pages/about.html",
       "title": "About",
-      "description": "Larkspur is run by a designer and a front-end developer who build small websites by hand. Get in touch about a project."
+      "description": "Larkspur is run by a designer and a front-end developer who build small websites by hand in Frome, Somerset. Get in touch about a project."
+    },
+    "/work/fern-and-kettle/": {
+      "file": "src/pages/work-fern-and-kettle.html",
+      "title": "Fern & Kettle",
+      "description": "A one-page site for a neighbourhood cafe, with a printable menu the owners update themselves each morning."
+    },
+    "/work/harbour-lane-pottery/": {
+      "file": "src/pages/work-harbour-lane-pottery.html",
+      "title": "Harbour Lane Pottery",
+      "description": "A quiet portfolio for a working potter, with large photographs and a dates page for kiln openings."
+    },
+    "/work/meadow-row-allotments/": {
+      "file": "src/pages/work-meadow-row-allotments.html",
+      "title": "Meadow Row Allotments",
+      "description": "Rules, a plot map, seasonal notices and a committee contact page for a forty-plot allotment site."
+    },
+    "/404/": {
+      "file": "src/pages/404.html",
+      "title": "Page not found",
+      "description": "There is nothing at this address."
     }
   },
   "components": {

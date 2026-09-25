@@ -1,9 +1,29 @@
 {
   "name": "Larkspur Studio",
   "url": "https://native-site-editor-starter-test.lexvd.workers.dev",
-  "description": "Larkspur is a two-person design studio for small, useful websites built from plain HTML and CSS.",
+  "description": "Larkspur is a two-person design studio in Frome, Somerset, building small, useful websites from plain HTML and CSS.",
   "themeColor": "#2f6d3a",
   "favicon": "src/images/favicon.svg",
-  "image": "src/images/studio-desk.svg",
-  "locale": "en_GB"
+  "image": "src/images/social-card.png",
+  "imageAlt": "Larkspur Studio: small, editable websites for independent businesses, Frome, Somerset",
+  "locale": "en_GB",
+  "indexable": false,
+  "contentSignals": {
+    "search": "yes",
+    "ai-input": "no",
+    "ai-train": "no"
+  },
+  "organization": {
+    "@type": "ProfessionalService",
+    "name": "Larkspur Studio",
+    "email": "hello@larkspur.example",
+    "foundingDate": "2019",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Frome",
+      "addressRegion": "Somerset",
+      "addressCountry": "GB"
+    },
+    "areaServed": "Somerset"
+  }
 }

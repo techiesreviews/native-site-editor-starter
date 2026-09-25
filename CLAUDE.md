@@ -15,7 +15,10 @@ Sample site for Native Site Editor (https://editor.techies.tools, source in `~/P
 - "Add to the page" offers a component only if its template is exactly one `<section>` element with nothing before or after it; `section-` components must keep to that. Cards, the header and the footer are never offered, and nothing can be added inside a section.
 - When a section is added, each named slot whose fallback is text and inline markup gets a per-page copy of that fallback, so it is editable on that page alone. Block fallbacks (a paragraph, a list, an image) and unnamed slots stay shared with the template, so content a new section needs to be editable goes in named slots with text fallbacks, as in `section-feature`'s `item-1-title` … `item-3-body`. `section-split`'s image fallback is currently shared; the fix belongs in the editor.
 - `data-if="name other"` on a template element shows it only when the page assigned every named slot. A fallback does not count for `data-if`.
-- Site links use hash routes: `href="#/"`, `href="#/about/"`.
+- Site links use hash routes: `href="#/"`, `href="#/about/"`. A section within a page is `#/about/#contact` (or `#work` on the same page), pointing at an `id` on that section.
+- Every page's `<main>` has `id="main"`; `site-header` starts with the "Skip to content" link to it. `site-header` and `site-footer` pad their sides to line up with `--page-width`.
+- `src/pages/404.html` is the not-found page, routed as `/404/`. The work pages are `src/pages/work-<slug>.html` at `/work/<slug>/`.
+- Page-level button rows use `.cta` and numbered steps use `ol.steps` (both in `sections.css`).
 - No `<script>`, inline `on*` handlers, or `javascript:` URLs; the preview strips them.
 - Keep `data-key` attributes on elements that change during editing, unique among siblings. They let the preview patch in place.
 
@@ -23,7 +26,8 @@ Sample site for Native Site Editor (https://editor.techies.tools, source in `~/P
 
 The exporter is owned by the editor (`shared/native-export.ts` there) and served as `https://editor.techies.tools/native-export.mjs`; this repository has no build script, so changes to the export rules are made in the editor. It expands each custom element into declarative shadow DOM (`<template shadowrootmode="open">`) that links the shared stylesheets and inlines the component's own stylesheet, so the output matches the preview's cascade without any JavaScript. Hash links become paths (`#/about/` becomes `/about/`), and the nav link for the current route gets `aria-current="page"`. Shared stylesheets and `src/images/` are written to `dist/assets/` with content-hashed names and immutable cache headers via `dist/_headers`; HTML is `max-age=0`. Images get `width`/`height` from the file and `loading="lazy"` after the first section.
 
-- `.astro-editor/site.json` holds site-level metadata for the export only: `name`, `url` (canonical base, overridable with `SITE_URL` or `--site-url`), `description`, `themeColor`, `favicon`, `image` (Open Graph), `locale`. The editor ignores it.
+- `.astro-editor/site.json` holds site-level metadata for the export only: `name`, `url` (canonical base, overridable with `SITE_URL` or `--site-url`), `description`, `themeColor`, `favicon`, `image` (Open Graph, `src/images/social-card.png`, 1200×630), `locale`. It also carries `imageAlt`, `indexable` (`false` on this test domain), `contentSignals` and `organization` (schema.org JSON-LD), which the published exporter does not read yet. The editor ignores the file.
+- Until the exporter handles them, `deploy.yml` copies `dist/404/index.html` to `dist/404.html` (Cloudflare's `404-page` handling) and appends `X-Robots-Tag: noindex` to `dist/_headers`. Remove that step once the exporter writes both.
 - Each route's `title` and `description` live in `native.json`. A page may instead start with a comment of `key: value` lines (`title`, `description`, `image`) that the export reads and strips; the manifest wins. Without either, the first `h1` and `p` are used.
 
 ## Relationship to the editor repository

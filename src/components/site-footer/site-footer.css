@@ -1,19 +1,30 @@
+/* The side padding lines the content up with the page's own width. */
 footer {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  gap: var(--space-2xs) var(--space-l);
-  padding: var(--space-l);
+  align-items: flex-start;
+  gap: var(--space-s) var(--space-l);
+  padding: var(--space-l) max(var(--space-l), (100% - var(--page-width)) / 2);
   background: var(--surface);
+  border-top: 1px solid var(--line);
   color: var(--muted);
   font-size: var(--text-s);
 }
 
-p {
-  margin: 0;
+address {
+  font-style: normal;
 }
 
+nav {
+  display: flex;
+  gap: var(--space-s);
+}
+
+/* Padded to at least 24px tall, so each link is an easy target. */
 a {
+  display: inline-block;
+  padding-block: var(--space-3xs);
   color: var(--muted);
 }
 
