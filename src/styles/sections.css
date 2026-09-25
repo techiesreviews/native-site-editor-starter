@@ -10,6 +10,42 @@
     color: var(--muted);
   }
 
+  /* A row of buttons: the first link is the main action, any after it are
+     outlined. Used under the home hero. */
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+  .flow > .cta {
+    margin-top: var(--space-l);
+  }
+
+  .cta a {
+    padding: var(--space-xs) var(--space-m);
+    border: 2px solid var(--accent);
+    border-radius: var(--radius-full);
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .cta a:hover {
+    filter: brightness(0.92);
+  }
+
+  .cta a + a {
+    background: transparent;
+    color: var(--accent);
+  }
+
+  .cta a + a:hover {
+    background: var(--surface);
+    filter: none;
+  }
+
   /* Numbered steps in a row, three across where there is room. */
   .steps {
     display: grid;
