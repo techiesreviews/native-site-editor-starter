@@ -6,14 +6,26 @@ The editor renders the site in the browser with no build step and saves the file
 
 ## Deployment
 
-`.github/workflows/deploy.yml` runs on every push to `main`. It fetches the editor's static exporter from `https://editor.techies.tools/native-export.mjs` and runs it, which writes a standalone site to `dist/` (one `index.html` per route, components expanded into declarative shadow DOM, no JavaScript, hashed stylesheet and image files under `dist/assets/`), then deploys `dist/` with `wrangler deploy` using `wrangler.jsonc`. The workflow needs two repository secrets: `CLOUDFLARE_API_TOKEN` (a token with the Workers Scripts Edit permission) and `CLOUDFLARE_ACCOUNT_ID`. The export rules belong to the editor, so this repository has no build script; run the same export locally with:
+`.github/workflows/deploy.yml` runs on every push to `main`. It fetches the editor's static exporter from `https://editor.techies.tools/native-export.mjs` and runs it, which writes a standalone site to `dist/` with no JavaScript, then deploys `dist/` with `wrangler deploy` using `wrangler.jsonc`. The workflow needs two repository secrets: `CLOUDFLARE_API_TOKEN` (a token with the Workers Scripts Edit permission) and `CLOUDFLARE_ACCOUNT_ID`. The export rules belong to the editor, so this repository has no build script; run the same export locally with:
 
 ```sh
 curl -fsSL https://editor.techies.tools/native-export.mjs -o native-export.mjs
 node native-export.mjs --out dist
 ```
 
-Site-wide metadata for the export (name, canonical URL, description, theme colour, favicon, social image and its `imageAlt`, locale) lives in `.astro-editor/site.json`. It also holds `indexable` (`false` here, because the test domain should stay out of search results), `contentSignals`, and `organization`, a schema.org object for the site's JSON-LD. The exporter currently published at `native-export.mjs` reads only the first group and ignores the rest, so until it catches up the workflow does two things itself after the export: it copies `dist/404/index.html` to `dist/404.html`, which Cloudflare serves for unknown paths (`not_found_handling` in `wrangler.jsonc`), and it adds `X-Robots-Tag: noindex` to every response. Each route's title and description live in the manifest (see below). A page may instead start with a comment of `title:` and `description:` lines; without either, the page's first `h1` and `p` are used.
+The full reference is `docs/static-export.md` in the editor repository. In short, the export:
+
+- Writes one `index.html` per route. The `/404/` route becomes `dist/404.html` instead, with `noindex`, no canonical link and no sitemap entry; Cloudflare serves it for unknown paths through `"not_found_handling": "404-page"` in `wrangler.jsonc`.
+- Expands each component into declarative shadow DOM that links one hashed `site.[hash].css` (the manifest's `styles` joined in order, with the `@layer` order statement at the top of `tokens.css` keeping the cascade) and then the component's own hashed stylesheet. There is no inline `<style>`.
+- Leaves out a slot's fallback when the page fills the slot, and keeps it when the page leaves the slot empty.
+- Strips `data-key` attributes. Keep them in the source: the editor preview needs them.
+- Sets `lang` in BCP 47 form (`en_GB` becomes `en-GB`).
+- Writes `sitemap.xml` and `robots.txt` when the site has a URL. `robots.txt` has `User-agent`, a `Content-Signal` line from `contentSignals`, `Allow`, and a `Sitemap` line unless `indexable` is `false`. To supply your own `robots.txt` or `sitemap.xml`, put it in `src/public/`; everything in `src/public/` is copied to the site root.
+- Writes `_headers` with `Cache-Control` (HTML is revalidated, hashed assets are immutable), a Content Security Policy (`default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'`), `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, and `X-Robots-Tag: noindex, nofollow` when `indexable` is `false`. The CSP allows `'unsafe-inline'` styles only if a page has a `style` attribute or a `<style>` element. HSTS is left to the Cloudflare zone settings.
+- Fills the head: `og:title` is the full page title, `og:image:alt` comes from `imageAlt`, and `og:image:width`/`height` are added for raster images. An SVG social image logs a warning, because most social sites do not show SVG.
+- Adds JSON-LD to `/`: a WebSite plus the `organization` from `site.json` (`type` or `@type`, `name`, `email`, `telephone`, `address`, `areaServed`, `foundingDate`, `sameAs`, `logo`). A route in `native.json` may add its own with `"jsonLd"`, an object or an array of objects.
+
+Site-wide metadata lives in `.astro-editor/site.json`: name, canonical URL, description, theme colour, favicon, social image (`src/images/social-card.png`, 1200×630) and `imageAlt`, locale, `indexable` (`false` here, because the test domain should stay out of search results), `contentSignals`, and `organization`. Each route's title and description live in the manifest (see below). A page may instead start with a comment of `title:` and `description:` lines; without either, the page's first `h1` and `p` are used.
 
 ## Repository layout
 
@@ -81,7 +93,7 @@ A page is an HTML fragment, not a full document. It uses the components declared
 
 Every page's `<main>` has `id="main"`: the first thing in `site-header` is a "Skip to content" link that points there and stays off screen until it has keyboard focus.
 
-Give elements that you expect to edit a `data-key` attribute that is unique among its siblings. The editor uses these keys to update the preview in place while you type instead of re-rendering the page.
+Give elements that you expect to edit a `data-key` attribute that is unique among its siblings. The editor uses these keys to update the preview in place while you type instead of re-rendering the page. The static export strips them.
 
 ## Components and their stylesheets
 
