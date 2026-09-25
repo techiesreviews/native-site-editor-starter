@@ -12,7 +12,6 @@ section {
   padding: var(--space-xl);
   border-radius: var(--radius-l);
   background: var(--surface);
-  border-left: 4px solid var(--accent);
 }
 
 h2,
