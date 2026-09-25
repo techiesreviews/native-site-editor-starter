@@ -1,13 +1,13 @@
 <section data-key="section-split">
   <div class="media" data-key="split-media">
-    <slot name="image"><img src="src/images/studio-desk.svg" alt="" data-key="split-image"></slot>
+    <slot name="image" data-if><img src="src/images/studio-desk.svg" alt="" data-key="split-image"></slot>
   </div>
   <div class="content" data-key="split-content">
-    <h2 data-key="split-title"><slot name="title">A short, clear headline.</slot></h2>
-    <p data-key="split-lede"><slot name="lede">One or two sentences that say why this matters and what the reader gets.</slot></p>
+    <slot name="title" data-if><h2 data-key="split-title">A short, clear headline.</h2></slot>
+    <slot name="lede" data-if><p data-key="split-lede">One or two sentences that say why this matters and what the reader gets.</p></slot>
     <div class="actions" data-key="split-actions">
-      <slot name="primary"><a href="#/about/#contact" data-key="split-primary">Get in touch</a></slot>
-      <slot name="secondary"><a href="#/" data-key="split-secondary">See our work</a></slot>
+      <slot name="primary" data-if><a href="#/about/#contact" data-key="split-primary">Get in touch</a></slot>
+      <slot name="secondary" data-if><a href="#/" data-key="split-secondary">See our work</a></slot>
     </div>
   </div>
 </section>

@@ -15,12 +15,14 @@
     margin: 0;
   }
 
-  h1 {
+  /* Not on a heading a page slots into a component: the component sizes it,
+     and a page rule would win over its ::slotted() rule. */
+  h1:not([slot]) {
     font-size: var(--text-4xl);
     line-height: 1.15;
   }
 
-  h2 {
+  h2:not([slot]) {
     font-size: var(--text-2xl);
   }
 

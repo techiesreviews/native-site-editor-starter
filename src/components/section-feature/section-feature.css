@@ -2,13 +2,18 @@
   display: block;
 }
 
+/* Each part is a whole element in a slot: styled as the template's fallback
+   and as what a page slots in. An item whose title and text are both left
+   out hides itself. */
+
 section {
   display: flex;
   flex-direction: column;
   gap: var(--space-m);
 }
 
-h2 {
+h2,
+::slotted(h2) {
   margin: 0;
   font-size: var(--text-2xl);
 }
@@ -28,13 +33,15 @@ article {
   background: var(--surface);
 }
 
-h3 {
+h3,
+::slotted(h3) {
   margin: 0;
   font-size: var(--text-xl);
   line-height: 1.3;
 }
 
-p {
+p,
+::slotted(p) {
   margin: 0;
   color: var(--muted);
   line-height: 1.55;

@@ -1,5 +1,5 @@
 <section data-key="section-intro">
-  <p class="eyebrow" data-key="intro-eyebrow"><slot name="eyebrow">Larkspur Studio</slot></p>
-  <h2 data-key="intro-title"><slot name="title">A short, clear headline.</slot></h2>
-  <p class="lead" data-key="intro-lead"><slot name="lead">One or two sentences that say what this part of the page is about.</slot></p>
+  <slot name="eyebrow" data-if><p class="eyebrow" data-key="intro-eyebrow">Larkspur Studio</p></slot>
+  <slot name="title" data-if><h2 data-key="intro-title">A short, clear headline.</h2></slot>
+  <slot name="lead" data-if><p class="lead" data-key="intro-lead">One or two sentences that say what this part of the page is about.</p></slot>
 </section>

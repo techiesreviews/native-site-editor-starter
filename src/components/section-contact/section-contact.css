@@ -2,6 +2,9 @@
   display: block;
 }
 
+/* Each part is a whole element in a slot: styled as the template's fallback
+   and as what a page slots in. */
+
 section {
   display: flex;
   flex-direction: column;
@@ -12,16 +15,19 @@ section {
   border-left: 4px solid var(--accent);
 }
 
-h2 {
+h2,
+::slotted(h2) {
   margin: 0;
   font-size: var(--text-2xl);
 }
 
-p {
+p,
+::slotted(p) {
   margin: 0;
 }
 
-.body {
+.body,
+::slotted(.body) {
   max-width: var(--reading-width);
   color: var(--muted);
   line-height: 1.55;
@@ -29,4 +35,9 @@ p {
 
 .action {
   font-weight: 600;
+}
+
+.action a,
+.action ::slotted(a) {
+  color: var(--accent);
 }

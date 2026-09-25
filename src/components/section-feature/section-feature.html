@@ -1,17 +1,17 @@
 <section data-key="section-feature">
-  <h2 data-key="feature-title"><slot name="title">What we offer</slot></h2>
+  <slot name="title" data-if><h2 data-key="feature-title">What we offer</h2></slot>
   <div class="items" data-key="feature-items">
     <article data-key="feature-item-1">
-      <h3 data-key="feature-item-1-title"><slot name="item-1-title">First item</slot></h3>
-      <p data-key="feature-item-1-body"><slot name="item-1-body">A sentence or two about this item.</slot></p>
+      <slot name="item-1-title" data-if><h3 data-key="feature-item-1-title">First item</h3></slot>
+      <slot name="item-1-body" data-if><p data-key="feature-item-1-body">A sentence or two about this item.</p></slot>
     </article>
     <article data-key="feature-item-2">
-      <h3 data-key="feature-item-2-title"><slot name="item-2-title">Second item</slot></h3>
-      <p data-key="feature-item-2-body"><slot name="item-2-body">A sentence or two about this item.</slot></p>
+      <slot name="item-2-title" data-if><h3 data-key="feature-item-2-title">Second item</h3></slot>
+      <slot name="item-2-body" data-if><p data-key="feature-item-2-body">A sentence or two about this item.</p></slot>
     </article>
     <article data-key="feature-item-3">
-      <h3 data-key="feature-item-3-title"><slot name="item-3-title">Third item</slot></h3>
-      <p data-key="feature-item-3-body"><slot name="item-3-body">A sentence or two about this item.</slot></p>
+      <slot name="item-3-title" data-if><h3 data-key="feature-item-3-title">Third item</h3></slot>
+      <slot name="item-3-body" data-if><p data-key="feature-item-3-body">A sentence or two about this item.</p></slot>
     </article>
   </div>
 </section>

@@ -2,24 +2,30 @@
   display: block;
 }
 
+/* Each part is a whole element in a slot: styled as the template's fallback
+   and as what a page slots in. */
+
 section {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
 }
 
-p {
+p,
+::slotted(p) {
   margin: 0;
 }
 
-h2 {
+h2,
+::slotted(h2) {
   margin: 0;
   font-size: var(--text-3xl);
   line-height: 1.2;
   max-width: 28ch;
 }
 
-.eyebrow {
+.eyebrow,
+::slotted(.eyebrow) {
   font-size: var(--text-s);
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -30,7 +36,8 @@ h2 {
 /* Deliberately the same name as a page lead paragraph, whose shared rule is
    adopted into this shadow root too. The values restate it, so this section
    keeps its look even if the page style changes. */
-.lead {
+.lead,
+::slotted(.lead) {
   max-width: var(--reading-width);
   font-size: var(--text-l);
   line-height: 1.6;

@@ -1,0 +1,9 @@
+<section data-key="section-hero">
+  <slot name="eyebrow" data-if><p class="eyebrow" data-key="hero-eyebrow">Larkspur Studio</p></slot>
+  <slot name="title" data-if><h1 data-key="hero-title">A short, clear headline for the page.</h1></slot>
+  <slot name="lead" data-if><p class="lead" data-key="hero-lead">One or two sentences that say who this is for and what they get.</p></slot>
+  <div class="actions" data-key="hero-actions">
+    <slot name="primary" data-if><a href="#/about/#contact" data-key="hero-primary">Get in touch</a></slot>
+    <slot name="secondary" data-if><a href="#work" data-key="hero-secondary">See our work</a></slot>
+  </div>
+</section>
