@@ -1,7 +1,7 @@
 article {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-xs);
   padding: var(--space-l);
   border-radius: var(--radius-l);
   background: var(--surface);

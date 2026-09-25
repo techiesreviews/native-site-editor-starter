@@ -5,7 +5,7 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 28px;
+  padding: var(--space-s) var(--space-l);
   background: var(--surface);
   border-bottom: 1px solid var(--line);
 }
