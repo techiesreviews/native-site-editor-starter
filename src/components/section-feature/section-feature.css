@@ -2,21 +2,40 @@
   display: block;
 }
 
+section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+}
+
 h2 {
-  margin: 0 0 var(--space-m);
+  margin: 0;
   font-size: var(--text-2xl);
 }
 
-div {
+.items {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--space-m);
 }
 
-div ::slotted(*) {
-  margin: 0;
+article {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
   padding: var(--space-m);
   border-radius: var(--radius-l);
   background: var(--surface);
+}
+
+h3 {
+  margin: 0;
+  font-size: var(--text-xl);
+  line-height: 1.3;
+}
+
+p {
+  margin: 0;
+  color: var(--muted);
   line-height: 1.55;
 }
