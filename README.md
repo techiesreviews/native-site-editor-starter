@@ -108,26 +108,28 @@ The component stylesheet is found by name, not by configuration: the editor swap
 
 ## Shared stylesheets
 
-The shared styles are split by concern into four files. Each file holds one cascade layer with the same name, and `src/styles/site.css` imports them in layer order:
+The shared styles are split by concern into five files. Each file holds one cascade layer with the same name, and `src/styles/site.css` imports them in layer order:
 
 ```
 src/styles/tokens.css     @layer tokens     Custom properties: colours, type and space scales, radii, widths
 src/styles/elements.css   @layer elements   Plain HTML elements: body, headings, links, focus rings
 src/styles/layout.css     @layer layout     Page width, space between sections, .flow, .cards
 src/styles/sections.css   @layer sections   Sections written directly in a page: .hero, .lead, .cta, .steps, .approach, .contact
+src/styles/utilities.css  @layer utilities  Text size classes: .text-s to .text-4xl
 ```
 
 ```css
-@layer tokens, elements, layout, sections;
+@layer tokens, elements, layout, sections, utilities;
 @import url("tokens.css");
 @import url("elements.css");
 @import url("layout.css");
 @import url("sections.css");
+@import url("utilities.css");
 ```
 
 The `@layer` statement fixes the order before anything is imported (`tokens.css` starts with the same statement, so keep it first). The imports are plain, not `layer(…)`, because each file already wraps its rules in its own `@layer` block. Once `site.css` exists it is the only shared stylesheet loaded, so a new one must be imported from it. A later layer wins over an earlier one whatever the specificity, and a component stylesheet, which is not in a layer, wins over all of them.
 
-To adjust the look, change a token. Components and the other shared files read `var(--accent)`, `var(--space-l)`, `var(--radius-l)`, `var(--text-2xl)` and so on, so one change in `tokens.css` reaches every page and component. Spacing is a scale from `--space-3xs` (4px) to `--space-5xl` (80px), and type runs from `--text-s` (14px, the smallest size used) to `--text-4xl`. The font stack is system fonts only; no webfont is loaded.
+To adjust the look, change a token. Components and the other shared files read `var(--accent)`, `var(--space-l)`, `var(--radius-l)`, `var(--text-2xl)` and so on, so one change in `tokens.css` reaches every page and component. Spacing is a scale from `--space-3xs` (4px) to `--space-5xl` (80px), and type runs from `--text-s` (14px, the smallest size used) to `--text-4xl`. Each step also has a class in `utilities.css` (`.text-s` … `.text-4xl`), which is what the editor's Text size control writes on an element; the utilities layer is last, so the class wins over element and section styles (a component's own stylesheet still wins inside that component). The font stack is system fonts only; no webfont is loaded.
 
 Elements have no margins of their own. A section of text gets its spacing from the `flow` class, which puts a step of space between its children, with a little more after a heading:
 

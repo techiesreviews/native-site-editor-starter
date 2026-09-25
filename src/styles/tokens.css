@@ -1,7 +1,7 @@
 /* The layer order for every shared stylesheet. Keep this file first in
    site.css's imports so the order is set before any layer is used. A
    component's own stylesheet is not in a layer, so it wins over all of them. */
-@layer tokens, elements, layout, sections;
+@layer tokens, elements, layout, sections, utilities;
 
 @layer tokens {
   :root {
