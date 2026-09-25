@@ -98,6 +98,10 @@ A part of a template that the page leaves empty is not shown. If an element hold
 
 and only the one card on the home page that passes `<a slot="link" href="#/about/">…</a>` shows that paragraph. The other cards end after their description. An element can also carry `data-if="name other"` to be shown only when the page assigned every slot named there; a fallback does not count for `data-if`.
 
+The editor's "Add to the page" buttons offer only components whose template is exactly one `<section>` element, with nothing before or after it, so every `section-` component keeps to that shape. Cards, the header and the footer are never offered, and nothing can be added inside a section. When a section is added, each named slot whose fallback is text and inline markup (`a`, `strong`, `em` and the like) gets its own copy in the page, so typing in it changes that page only. A slot whose fallback is block content, such as a paragraph, a list or an image, stays with the template, and so does an unnamed slot. That is why `section-feature` has a fixed set of named slots (`title`, then `item-1-title`, `item-1-body` up to `item-3-body`) rather than one slot for a list of items.
+
+The image in a newly added `section-split` is currently shared: its fallback is an `<img>`, which stays with the template, so editing it changes every Split section that has no image of its own. Pass `<img slot="image" …>` from the page, as the home page does, to give one section its own image.
+
 Because the stylesheet only ever reaches its own shadow root, a component styles itself with plain element selectors and needs no name-prefixed classes: `article`, `h3`, `nav a`. Add a short class such as `actions` or `body` only where two elements of the same tag need different rules. Nothing a component defines can reach the page or another component.
 
 The shared stylesheets are adopted into every shadow root as well, so their rules also apply inside a component. They are all in cascade layers and a component stylesheet is not, so a component rule wins over any shared rule whatever its specificity: `elements.css` colours running text links with `p a`, and `site-footer` overrides that with a plain `a`, while a component that says nothing about links still gets the accent colour, as `section-contact` does for the fallback link in its action paragraph. Avoid reusing a shared class name such as `page`, `flow`, `lead`, `cards`, `contact`, or `approach` inside a component unless you mean to build on that rule.
@@ -147,4 +151,10 @@ The preview strips `<script>` tags, inline `on*` event handlers, and `javascript
 
 - Click an element in the preview to select it and open its source. Selecting a component instance opens the template with its stylesheet beside it.
 - Ctrl/⌘+click a link to follow it to the target route.
-- Saving writes the selected files to the current branch as a commit. Nothing is published by saving.
+- The page structure sidebar shows the page's elements as a tree. Click a row to select that element in the preview and open the edit bar. Rows fold, and the arrow keys and Enter work in the tree.
+- The Title and Description fields above the tree edit the route's `title` and `description` in `.astro-editor/native.json`.
+- Drag the resize handles between the sidebar, preview, code and side-by-side panes to resize them. Click a handle to hide or show that panel.
+- Move a section with Alt+↑/↓, by dragging its row in the sidebar, or by dragging the grip in the edit bar while the whole section is selected.
+- Add a section with the plus buttons between sections. They list the components that fit there (see [Components and their stylesheets](#components-and-their-stylesheets)).
+- To link text, select it in a paragraph and press Link in the edit bar or Ctrl/⌘+K, then choose one of the site's pages or type an address. Remove link takes it off again.
+- Save to GitHub lists each changed file with its added and removed line counts. Click the counts to compare the old and new file side by side. Saving writes the selected files to the current branch as a commit. Nothing is published by saving.
