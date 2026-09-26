@@ -1,5 +1,6 @@
-# Builds the static export and deploys it to the test Cloudflare Worker on
-# every push to main, which is what the editor's Publish (Save to GitHub) does.
+# Deploys the site to the test Cloudflare Worker on every push to main, which
+# is what the editor's Save to GitHub does. There is no build: the repository
+# is the site, and .assetsignore keeps repository-only files off it.
 # Requires two repository secrets: CLOUDFLARE_API_TOKEN (Workers Scripts:Edit)
 # and CLOUDFLARE_ACCOUNT_ID.
 name: Deploy test site
@@ -24,12 +25,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      # The export rules live in the editor, so every site gets the same
-      # output without keeping a build script of its own.
-      - name: Fetch the editor's static exporter
-        run: curl -fsSL https://editor.techies.tools/native-export.mjs -o /tmp/native-export.mjs
-      - name: Build static export
-        run: node /tmp/native-export.mjs --out dist
       - name: Deploy to Cloudflare Workers
         run: npx --yes wrangler@4 deploy
         env:
