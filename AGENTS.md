@@ -14,7 +14,7 @@ work/<slug>/index.html               /work/<slug>/
 styles/site.css                      shared styles; @imports tokens, elements, layout, sections, utilities
 components/components.js             the component loader
 components/<tag>/<tag>.html          a component's template
-components/<tag>/<tag>.css           its styles
+components/<tag>/<tag>.css           its styles (optional)
 images/                              images
 robots.txt                           served as is
 _redirects                           optional: `/old/ /new/ 301` lines (the editor writes it when a page moves)
@@ -74,7 +74,7 @@ A component is a custom element: a template `components/<tag>/<tag>.html` (shado
 
 ### The loader
 
-`components/components.js` is a dependency-free ES module every page loads. There is no list of tags: it looks for custom elements that are not defined yet (tags with a dash) in the page as it loads, in whatever other scripts add later, and in each template it renders, so components can use components. For each new tag it fetches `components/<tag>/<tag>.html` and `.css` once and defines the element. Each instance gets an open shadow root with, in order:
+`components/components.js` is a dependency-free ES module every page loads. There is no list of tags: it looks for custom elements that are not defined yet (tags with a dash) in the page as it loads, in whatever other scripts add later, and in each template it renders, so components can use components. For each new tag it fetches `components/<tag>/<tag>.html` and its `.css` (optional: a missing one means no styles) once and defines the element. Each instance gets an open shadow root with, in order:
 
 1. the page's stylesheets (every `<link rel="stylesheet">` in `<head>`), so tokens and shared rules apply inside components;
 2. the component's CSS in a `<style>`, with a `::slotted()` twin added to each selector: `h1 { … }` becomes `h1, ::slotted(h1) { … }` and `.actions a` also `.actions ::slotted(a)`. So write component CSS **without** `::slotted()`; one rule styles the template's fallback and the page's slotted element alike. `:host` rules and selectors that already use `::slotted()` are left as they are;
@@ -86,7 +86,7 @@ It also:
 - sets `aria-current="page"` on links in the shadow root that point at the current page (the header's nav styles it); links with a `#` are left out, so the nav's Work link (`/#work`) is not marked;
 - scrolls again to the target of a link like `/#work` once the page's components have loaded (the browser's own scroll happens before they grow), unless the reader has scrolled.
 
-Until a component is defined, `styles/site.css` hides it (`:not(:defined):not([data-unloaded])` under `@media (scripting: enabled)`; `:not(:defined)` only ever matches custom elements), so there is no flash of unstyled content and nothing is hidden with JS off. If a tag's files cannot be fetched, the loader logs one warning, marks that tag's elements `data-unloaded` so they show their own content unstyled, and leaves the tag undefined: a site script may define it instead.
+Until a component is defined, `styles/site.css` hides it (`:not(:defined):not([data-unloaded])` under `@media (scripting: enabled)`; `:not(:defined)` only ever matches custom elements), so there is no flash of unstyled content and nothing is hidden with JS off. If a tag's template cannot be fetched, the loader logs one warning, marks that tag's elements `data-unloaded` so they show their own content unstyled, and leaves the tag undefined: a site script may define it instead.
 
 ### Writing a component
 

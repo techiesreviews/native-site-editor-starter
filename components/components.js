@@ -3,7 +3,7 @@
 // No dependencies and no build step: it is part of the site, like the pages.
 //
 // A component is two files, components/<tag>/<tag>.html (the template) and
-// components/<tag>/<tag>.css (its styles); there is no list of tags. The
+// components/<tag>/<tag>.css (its styles, optional); there is no list of tags. The
 // loader looks for custom elements that are not defined yet (tags with a
 // dash): in the page when it loads, in whatever other scripts add to the page
 // later, and in each template it renders, so components can use components.
@@ -52,13 +52,15 @@ function find(root) {
 async function load(tag) {
   pending++;
   const base = new URL(`${tag}/${tag}`, folder);
-  const text = async (url) => {
+  // A missing stylesheet is no styles; a missing template is no component.
+  const text = async (url, optional) => {
     const response = await fetch(url);
+    if (optional && response.status === 404) return "";
     if (!response.ok) throw new Error(`${response.status} for ${url}`);
     return response.text();
   };
   try {
-    const [html, css] = await Promise.all([text(`${base}.html`), text(`${base}.css`)]);
+    const [html, css] = await Promise.all([text(`${base}.html`), text(`${base}.css`, true)]);
     if (!customElements.get(tag)) define(tag, html, css);
   } catch (error) {
     if (customElements.get(tag)) return;
