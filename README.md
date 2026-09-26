@@ -18,7 +18,7 @@ The full reference is `docs/static-export.md` in the editor repository. In short
 - Writes one `index.html` per route. The `/404/` route becomes `dist/404.html` instead, with `noindex`, no canonical link and no sitemap entry; Cloudflare serves it for unknown paths through `"not_found_handling": "404-page"` in `wrangler.jsonc`.
 - Expands each component into declarative shadow DOM that links the hashed `site.[hash].css` (from `src/styles/site.css`, its `@import`s pointing at the hashed layer files, with the `@layer` order statement at the top keeping the cascade) and then the component's own hashed stylesheet. There is no inline `<style>`.
 - Leaves out a slot's fallback when the page fills the slot, and keeps it when the page leaves the slot empty.
-- Strips `data-key` attributes. Keep them in the source: the editor preview needs them.
+- Strips any leftover `data-key` attributes. The editor no longer needs or writes them.
 - Sets `lang` in BCP 47 form (`en_GB` becomes `en-GB`).
 - Writes `sitemap.xml` and `robots.txt` when the site has a URL. `robots.txt` has `User-agent`, a `Content-Signal` line from `contentSignals`, `Allow`, and a `Sitemap` line unless `indexable` is `false`. To supply your own `robots.txt` or `sitemap.xml`, put it in `src/public/`; everything in `src/public/` is copied to the site root.
 - Writes `_headers` with `Cache-Control` (HTML is revalidated, hashed assets are immutable), a Content Security Policy (`default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'`), `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, and `X-Robots-Tag: noindex, nofollow` when `indexable` is `false`. The CSP allows `'unsafe-inline'` styles only if a page has a `style` attribute or a `<style>` element. HSTS is left to the Cloudflare zone settings.
@@ -55,23 +55,21 @@ A page is an HTML fragment, not a full document. It starts with a comment that g
 title: Fern & Kettle
 description: A one-page site for a neighbourhood cafe, with a printable menu.
 -->
-<site-header data-key="header"></site-header>
-<main class="page" id="main" data-key="main">
-  <card-project data-key="card-fern">
+<site-header></site-header>
+<main class="page" id="main">
+  <card-project>
     <span slot="title">Fern &amp; Kettle</span>
     <span slot="note">Cafe · 2025</span>
     <p slot="body">A one-page site with a printable menu.</p>
     <a slot="link" href="#/work/fern-and-kettle/">Read the Fern &amp; Kettle write-up</a>
   </card-project>
 </main>
-<site-footer data-key="footer"></site-footer>
+<site-footer></site-footer>
 ```
 
 The comment is the first thing in the file, one `key: value` per line. `title` becomes the page's `<title>` (followed by ` · ` and the site name) and `og:title`, and `description` its meta description; the export leaves the comment out of the page, and the editor never shows it in the preview. The Title and Description fields in the editor write it for you.
 
 Every page's `<main>` has `id="main"`: the first thing in `site-header` is a "Skip to content" link that points there and stays off screen until it has keyboard focus.
-
-Give elements that you expect to edit a `data-key` attribute that is unique among its siblings. The editor uses these keys to update the preview in place while you type instead of re-rendering the page. The static export strips them.
 
 ## Components and their stylesheets
 
@@ -87,7 +85,7 @@ Templates render into a shadow root. Use `<slot>` for content the page supplies,
 A part of a template that the page leaves empty is not shown. If an element holds one or more slots, has no text of its own, and the page assigned none of those slots, the editor hides it and the static export leaves it out; a wrapper whose children are all hidden that way goes too. A slot with fallback content in the template is never empty, so an element with a fallback is always shown. That is how a part is made optional: leave the fallback out. `card-project` ends with
 
 ```html
-<p class="actions" data-key="card-actions"><slot name="link"></slot></p>
+<p class="actions"><slot name="link"></slot></p>
 ```
 
 and only a card whose page passes `<a slot="link" href="#/work/fern-and-kettle/">…</a>` shows that paragraph; a card without one ends after its description. Cards in a row are the same height, and the link sits at the bottom of each. An element can also carry `data-if="name other"` to be shown only when the page assigned every slot named there; a fallback does not count for `data-if`.
@@ -134,9 +132,9 @@ To adjust the look, change a token. Components and the other shared files read `
 Elements have no margins of their own. A section of text gets its spacing from the `flow` class, which puts a step of space between its children, with a little more after a heading:
 
 ```html
-<section class="approach flow" data-key="approach">
-  <h2 data-key="approach-title">How we work</h2>
-  <p data-key="approach-1">…</p>
+<section class="approach flow">
+  <h2>How we work</h2>
+  <p>…</p>
 </section>
 ```
 

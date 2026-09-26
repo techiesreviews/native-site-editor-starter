@@ -1,7 +1,7 @@
-<article data-key="card-project">
-  <card-note data-key="card-note"><slot name="note">Project</slot></card-note>
-  <h3 data-key="card-title"><slot name="title">Untitled project</slot></h3>
-  <p class="body" data-key="card-body"><slot name="body">No description yet.</slot></p>
-  <slot data-key="card-default"></slot>
-  <p class="actions" data-key="card-actions"><slot name="link"></slot></p>
+<article>
+  <card-note><slot name="note">Project</slot></card-note>
+  <h3><slot name="title">Untitled project</slot></h3>
+  <p class="body"><slot name="body">No description yet.</slot></p>
+  <slot></slot>
+  <p class="actions"><slot name="link"></slot></p>
 </article>
