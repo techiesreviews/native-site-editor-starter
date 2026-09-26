@@ -1,4 +1,10 @@
 @layer elements {
+  /* A link to a part of a page (/#work, /about/#contact) scrolls it clear of
+     the sticky header. */
+  html {
+    scroll-padding-top: var(--space-5xl);
+  }
+
   body {
     margin: 0;
     font-family: var(--font-body);

@@ -2,50 +2,94 @@
 //   <script type="module" src="/components/components.js"></script>
 // No dependencies and no build step: it is part of the site, like the pages.
 //
-// For each tag in TAGS it fetches components/<tag>/<tag>.html (the template)
-// and components/<tag>/<tag>.css (its styles) once, then defines the custom
-// element. Every instance gets an open shadow root holding, in order:
+// A component is two files, components/<tag>/<tag>.html (the template) and
+// components/<tag>/<tag>.css (its styles); there is no list of tags. The
+// loader looks for custom elements that are not defined yet (tags with a
+// dash): in the page when it loads, in whatever other scripts add to the page
+// later, and in each template it renders, so components can use components.
+// For each new tag it fetches the two files once and defines the element.
+// Every instance gets an open shadow root holding, in order:
 //   1. the page's own stylesheets (each <link rel="stylesheet"> in <head>),
 //   2. the component's CSS, with a ::slotted() twin added to each selector, so
 //      `h1 { … }` styles the template's fallback <h1> and the page's
 //      <h1 slot="title"> alike,
 //   3. the template.
 //
+// If a tag's files cannot be fetched, the loader warns once and leaves the
+// tag undefined, so a site script may define it instead. It marks the tag's
+// elements data-unloaded, which styles/site.css shows as they are.
+//
 // Optional parts hide themselves (see hideEmpty), and links in the shadow root
 // that point at the current page get aria-current="page".
-//
-// To add a component, add its tag here and to the :not(:defined) rule in
-// styles/site.css.
-
-const TAGS = [
-  "card-note",
-  "card-project",
-  "section-contact",
-  "section-feature",
-  "section-hero",
-  "section-intro",
-  "section-split",
-  "site-footer",
-  "site-header",
-];
 
 const folder = new URL("./", import.meta.url);
+const requested = new Set();
+const unloaded = new Set();
+const startY = scrollY;
+let pending = 0;
+let settled = false;
 
-async function load(url) {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`${response.status} for ${url}`);
-  return response.text();
+find(document);
+new MutationObserver((records) => {
+  for (const record of records) for (const node of record.addedNodes) if (node.nodeType === 1) find(node);
+}).observe(document.documentElement, { childList: true, subtree: true });
+
+// Loads the tag of each undefined custom element in `root`, and of `root`.
+function find(root) {
+  const found = [...root.querySelectorAll(":not(:defined)")];
+  if (root.nodeType === 1 && root.matches(":not(:defined)")) found.push(root);
+  for (const el of found) {
+    const tag = el.localName;
+    if (!tag.includes("-")) continue;
+    if (unloaded.has(tag)) el.setAttribute("data-unloaded", "");
+    else if (!requested.has(tag)) {
+      requested.add(tag);
+      load(tag);
+    }
+  }
 }
 
-for (const tag of TAGS) {
+async function load(tag) {
+  pending++;
   const base = new URL(`${tag}/${tag}`, folder);
-  Promise.all([load(`${base}.html`), load(`${base}.css`)])
-    .then(([html, css]) => define(tag, html, css))
-    .catch((error) => {
-      // Show the page's own content rather than leave the element hidden.
-      console.error(`<${tag}> could not be loaded: ${error.message}`);
-      if (!customElements.get(tag)) define(tag, "<slot></slot>", "");
-    });
+  const text = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`${response.status} for ${url}`);
+    return response.text();
+  };
+  try {
+    const [html, css] = await Promise.all([text(`${base}.html`), text(`${base}.css`)]);
+    if (!customElements.get(tag)) define(tag, html, css);
+  } catch (error) {
+    if (customElements.get(tag)) return;
+    unloaded.add(tag);
+    console.warn(`<${tag}> was not loaded (${error.message}); its elements show their own content.`);
+    mark(document, tag);
+  } finally {
+    if (--pending === 0 && !settled) {
+      settled = true;
+      requestAnimationFrame(followHash);
+    }
+  }
+}
+
+// The browser scrolls to a link's target (/#work) before the components above
+// it have rendered and grown, so it falls short. Once the page's components
+// have loaded, scroll there again, unless the reader has scrolled meanwhile.
+function followHash() {
+  let target = null;
+  try {
+    target = location.hash && document.getElementById(decodeURIComponent(location.hash.slice(1)));
+  } catch {}
+  if (target && scrollY === startY) target.scrollIntoView();
+}
+
+// Marks the undefined <tag> elements in `root` and in the shadow roots in it.
+function mark(root, tag) {
+  for (const el of root.querySelectorAll("*")) {
+    if (el.localName === tag && !el.matches(":defined")) el.setAttribute("data-unloaded", "");
+    if (el.shadowRoot) mark(el.shadowRoot, tag);
+  }
 }
 
 function define(tag, html, css) {
@@ -66,6 +110,7 @@ function define(tag, html, css) {
       const update = () => hideEmpty(root, section);
       root.addEventListener("slotchange", update);
       update();
+      find(root);
     }
   });
 }

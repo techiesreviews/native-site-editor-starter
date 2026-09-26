@@ -12,19 +12,11 @@
 
 /* Components stay hidden until components.js has defined them, so a page
    never shows them unstyled. Only with scripting on: without JS, their
-   content still shows. List every tag in components/components.js here. */
+   content still shows. :not(:defined) matches custom elements only (every
+   built-in element is defined); data-unloaded is the loader's mark on one it
+   could not load, which then shows its own content. */
 @media (scripting: enabled) {
-  :is(
-    card-note,
-    card-project,
-    section-contact,
-    section-feature,
-    section-hero,
-    section-intro,
-    section-split,
-    site-footer,
-    site-header
-  ):not(:defined) {
+  :not(:defined):not([data-unloaded]) {
     visibility: hidden;
   }
 }

@@ -74,7 +74,7 @@ A component is a custom element: a template `components/<tag>/<tag>.html` (shado
 
 ### The loader
 
-`components/components.js` is a dependency-free ES module every page loads. It lists the tags, fetches each template and stylesheet once and defines the element. Each instance gets an open shadow root with, in order:
+`components/components.js` is a dependency-free ES module every page loads. There is no list of tags: it looks for custom elements that are not defined yet (tags with a dash) in the page as it loads, in whatever other scripts add later, and in each template it renders, so components can use components. For each new tag it fetches `components/<tag>/<tag>.html` and `.css` once and defines the element. Each instance gets an open shadow root with, in order:
 
 1. the page's stylesheets (every `<link rel="stylesheet">` in `<head>`), so tokens and shared rules apply inside components;
 2. the component's CSS in a `<style>`, with a `::slotted()` twin added to each selector: `h1 { … }` becomes `h1, ::slotted(h1) { … }` and `.actions a` also `.actions ::slotted(a)`. So write component CSS **without** `::slotted()`; one rule styles the template's fallback and the page's slotted element alike. `:host` rules and selectors that already use `::slotted()` are left as they are;
@@ -83,9 +83,10 @@ A component is a custom element: a template `components/<tag>/<tag>.html` (shado
 It also:
 
 - hides optional parts: in a section component (template is one `<section>`) that the page fills at all, a slot the page does not fill is hidden with its fallback, while a bare tag shows every fallback. `data-if="a b"` on an element shows it only when the page fills every named slot. An element that holds slots, has no text of its own and whose slots all show nothing is hidden too (an empty button row, `card-project`'s link paragraph). It recomputes on `slotchange`;
-- sets `aria-current="page"` on links in the shadow root that point at the current page (the header's nav styles it).
+- sets `aria-current="page"` on links in the shadow root that point at the current page (the header's nav styles it); links with a `#` are left out, so the nav's Work link (`/#work`) is not marked;
+- scrolls again to the target of a link like `/#work` once the page's components have loaded (the browser's own scroll happens before they grow), unless the reader has scrolled.
 
-Until a component is defined, `styles/site.css` hides it (`:not(:defined)` under `@media (scripting: enabled)`), so there is no flash of unstyled content and nothing is hidden with JS off.
+Until a component is defined, `styles/site.css` hides it (`:not(:defined):not([data-unloaded])` under `@media (scripting: enabled)`; `:not(:defined)` only ever matches custom elements), so there is no flash of unstyled content and nothing is hidden with JS off. If a tag's files cannot be fetched, the loader logs one warning, marks that tag's elements `data-unloaded` so they show their own content unstyled, and leaves the tag undefined: a site script may define it instead.
 
 ### Writing a component
 
@@ -93,9 +94,9 @@ Until a component is defined, `styles/site.css` hides it (`:not(:defined)` under
 - A `section-` template is exactly one `<section>` with nothing before or after it; only those are offered by the editor's "Add to the page".
 - Styles are scoped to the shadow root: use element selectors (`article`, `nav a`) and a short class only to tell same-tag siblings apart. Use tokens (`var(--space-l)`, `var(--text-2xl)`, `var(--accent)`).
 - Shared styles are in cascade layers; component CSS is not, so any component rule beats any shared rule. Shared rules that size elements use `:not([slot])` (see `styles/elements.css`) so a heading slotted into a component is sized by the component.
-- Components can use other components (`card-project` uses `card-note`).
+- Components can use other components (`card-project` uses `card-note`, and passes its `note` slot on with `<slot name="note" slot="text">`). A component styles what a page slots in with a rule on the slotted element; text that is passed through another component's slot is reached only by inheritance, so `card-note` sets its type on `:host`.
 
-To add a component `card-quote`: create `components/card-quote/card-quote.html` and `card-quote.css`, add `"card-quote"` to `TAGS` in `components/components.js`, and add `card-quote` to the `:not(:defined)` list at the end of `styles/site.css`.
+To add a component `card-quote`: create `components/card-quote/card-quote.html` and `card-quote.css`, then use `<card-quote>` in a page. That is all; the loader finds it.
 
 ## Styles
 
@@ -103,7 +104,7 @@ To add a component `card-quote`: create `components/card-quote/card-quote.html` 
 
 ## Adding a blog
 
-1. `blog/index.html`: a copy of `about/index.html` with a hero section and a list of posts, for example `<div class="cards">` of `<card-project>`s, each with `<span slot="title">`, `<span slot="note">` (date), `<p slot="body">` and `<a slot="link" href="/blog/<slug>/">Read</a>`.
+1. `blog/index.html`: a copy of `about/index.html` with a hero section and a list of posts, for example `<div class="cards">` of `<card-project>`s, each with `<p slot="note">` (date), `<h3 slot="title">`, `<p slot="body" class="body">` and `<a slot="link" href="/blog/<slug>/">Read</a>`, as in the home page's `#work` section.
 2. `blog/<slug>/index.html` per post: a copy of `work/fern-and-kettle/index.html`, with the post in `<section class="prose flow">`. Set its title, description, canonical and `og:*` URL.
 3. Add `<a href="/blog/">Blog</a>` to the nav in `components/site-header/site-header.html` (and the footer), which updates every page.
 

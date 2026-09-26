@@ -1,7 +1,7 @@
 <article>
-  <card-note><slot name="note">Project</slot></card-note>
-  <h3><slot name="title">Untitled project</slot></h3>
-  <p class="body"><slot name="body">No description yet.</slot></p>
+  <card-note><slot name="note" slot="text"><p>Project</p></slot></card-note>
+  <slot name="title"><h3>Untitled project</h3></slot>
+  <slot name="body"><p class="body">No description yet.</p></slot>
   <slot></slot>
   <p class="actions"><slot name="link"></slot></p>
 </article>

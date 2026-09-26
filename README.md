@@ -25,7 +25,7 @@ robots.txt                           served as is
 .editor/config.json                  editor-only settings (site name and URL)
 ```
 
-Every page is a full HTML document. Components such as `<site-header>` and `<section-hero>` are custom elements: `components/components.js` fetches each one's template and stylesheet and renders it into a shadow root, so a change to a component shows on every page. See [AGENTS.md](AGENTS.md) for how the loader works and how to add pages, components or a blog.
+Every page is a full HTML document. Components such as `<site-header>` and `<section-hero>` are custom elements: `components/components.js` finds them on the page, fetches each one's template and stylesheet and renders it into a shadow root, so a change to a component shows on every page. A new component is just `components/<tag>/<tag>.html` and `.css`: put them there and use `<tag>` in a page; there is no list to update. See [AGENTS.md](AGENTS.md) for how the loader works and how to add pages, components or a blog.
 
 ## Deploying
 
