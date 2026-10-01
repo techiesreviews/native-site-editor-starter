@@ -19,6 +19,8 @@ permissions:
 
 jobs:
   deploy:
+    # Only the starter itself deploys; copies made from it skip this job.
+    if: github.repository == 'techiesreviews/native-site-editor-starter'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
