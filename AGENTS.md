@@ -43,6 +43,7 @@ Every page is a full document. Copy an existing page and change its head and `<m
   <script type="module" src="/components/components.js"></script>
 </head>
 <body>
+  <a class="skip" href="#main">Skip to content</a>
   <site-header></site-header>
   <main class="page" id="main">
     …sections…
@@ -54,7 +55,7 @@ Every page is a full document. Copy an existing page and change its head and `<m
 
 - The `<title>` is the page title followed by ` · Larkspur Studio`; `og:title` repeats it. `<meta name="description">` and `og:description` match. `canonical` and `og:url` are the site URL plus the page's path; `404.html` has neither. The site is kept out of search results (`<meta name="robots" content="noindex">` on every page) because this is a test domain.
 - JSON-LD (the organization and the website) is on the home page only.
-- `<main>` keeps `id="main"`: the header's "Skip to content" link points there.
+- `<main>` keeps `id="main"`: each page carries its "Skip to content" link right before `<site-header>`, and the link points there. Its style is in the shared CSS (`styles/utilities.css`).
 - Sections written straight into a page are `<section>` elements with shared classes: `hero flow`, `prose flow`, `contact flow` (see `styles/sections.css`).
 
 To add a page at `/services/`: create `services/index.html` from a copy of `about/index.html`, change the title, description, canonical, `og:*` URL and text, then link to it (for the main navigation, edit `components/site-header/site-header.html` and `site-footer.html`; every page picks it up).
