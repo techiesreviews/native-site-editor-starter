@@ -103,7 +103,7 @@ To add a component `card-quote`: create `components/card-quote/card-quote.html` 
 
 `styles/site.css` sets the layer order and imports, in order: `tokens.css` (custom properties), `elements.css` (plain elements), `layout.css` (`.page`, `.flow`, `.cards`), `sections.css` (page sections: `.hero`, `.lead`, `.cta`, `.steps`, `.contact`; `.btn` for a link styled as a button, `<a class="btn" href="…">Label</a>`), `utilities.css` (`.skip` for the page's skip link, then `.text-s` … `.text-4xl`, which the editor's Text size writes). A new shared file is imported from `site.css`. Elements have no margins: text blocks take `flow`, components use `gap`.
 
-In a `.cards` grid, a title whose only element is a link stretches that link over the whole item, whether a plain card or a card component. The rule uses `:only-child`, which ignores text, so make the link the title's whole content. Card components set `:host { position: relative; }` to bound it; other links stay clickable. A section component's title link does not stretch. Whole-title links keep the heading's colour, with an underline on hover.
+In a `.cards` grid, a title whose only element is a link stretches that link over the whole item, whether a plain card or a card component. The rule uses `:only-child`, which ignores text, so make the link the title's whole content. Card components set `:host { position: relative; }` to bound it; other links stay clickable. Outside a `.cards` grid (a section component's title, a card component on its own) the link covers only the title. Whole-title links keep the heading's colour, with an underline on hover.
 
 ## Adding a blog
 
