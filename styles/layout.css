@@ -31,19 +31,24 @@
   }
 
   /* Stretch a title link over its card. This lives in the site's CSS because
-     component CSS cannot reach a link inside slotted content. */
+     component CSS cannot reach a link inside slotted content. The second
+     selector reaches cards in a section component's items slot (their host is
+     a child of the section's tag); a section component's own title, whose
+     host sits in main, body, a section or a div, keeps a title-sized link. */
   .cards > * {
     position: relative;
   }
 
-  .cards > * :is(h2, h3, h4, [slot="title"]) > a:only-child::after {
+  .cards > * :is(h2, h3, h4, [slot="title"]) > a:only-child::after,
+  :not(main, body, section, div) > * > [slot="title"] > a:only-child::after {
     content: "";
     position: absolute;
     inset: 0;
   }
 
-  /* Keep other links above the stretched title link in plain cards too. */
-  .cards > * a:not(:is(h2, h3, h4, [slot="title"]) > a:only-child) {
+  /* Keep other links above the stretched title link in both card layouts. */
+  .cards > * a:not(:is(h2, h3, h4, [slot="title"]) > a:only-child),
+  :not(main, body, section, div) > :has(> [slot="title"] > a:only-child) a:not([slot="title"] > a:only-child) {
     position: relative;
     z-index: 1;
   }
