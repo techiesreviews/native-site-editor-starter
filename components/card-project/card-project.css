@@ -17,6 +17,12 @@ article {
   border: 1px solid var(--line);
 }
 
+/* A thicker accent edge without changing the card's size or content measure. */
+:host([data-featured]) article {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
 h3 {
   margin: 0;
   font-size: var(--text-xl);
