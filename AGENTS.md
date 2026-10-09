@@ -97,7 +97,9 @@ Until a component is defined, `styles/site.css` hides it (`:not(:defined):not([d
 - Shared styles are in cascade layers; component CSS is not, so any component rule beats any shared rule. Shared rules that size elements use `:not([slot])` (see `styles/elements.css`) so a heading slotted into a component is sized by the component.
 - Components can use other components (`card-project` uses `card-note`, and passes its `note` slot on with `<slot name="note" slot="text">`). A component styles what a page slots in with a rule on the slotted element; text that is passed through another component's slot is reached only by inheritance, so `card-note` sets its type on `:host`.
 
-To add a component `card-quote`: create `components/card-quote/card-quote.html` and `card-quote.css`, then use `<card-quote>` in a page. That is all; the loader finds it.
+`card-quote` offers a title and quote text without an image or link slot; use a link inside its title to link the card. `card-project` supports `data-layout="centered"` to centre its text, note and link row; leaving it off keeps the default layout.
+
+To add a component `card-person`: create `components/card-person/card-person.html` and `card-person.css`, then use `<card-person>` in a page. That is all; the loader finds it.
 
 ## Styles
 
