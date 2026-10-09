@@ -56,7 +56,7 @@ Every page is a full document. Copy an existing page and change its head and `<m
 - The `<title>` is the page title followed by ` · Larkspur Studio`; `og:title` repeats it. `<meta name="description">` and `og:description` match. `canonical` and `og:url` are the site URL plus the page's path; `404.html` has neither. The site is kept out of search results (`<meta name="robots" content="noindex">` on every page) because this is a test domain.
 - JSON-LD (the organization and the website) is on the home page only.
 - `<main>` keeps `id="main"`: each page carries its "Skip to content" link right before `<site-header>`, and the link points there. Its style is in the shared CSS (`styles/utilities.css`).
-- Sections written straight into a page are `<section>` elements with shared classes: `hero flow`, `prose flow`, `contact flow` (see `styles/sections.css`).
+- Sections written straight into a page are `<section>` elements with shared classes: `hero flow`, `prose flow`, `contact flow` (see `styles/sections.css`). Inside them, `.btn` styles a link as a button: `<a class="btn" href="…">Label</a>`.
 
 To add a page at `/services/`: create `services/index.html` from a copy of `about/index.html`, change the title, description, canonical, `og:*` URL and text, then link to it (for the main navigation, edit `components/site-header/site-header.html` and `site-footer.html`; every page picks it up).
 
@@ -101,7 +101,7 @@ To add a component `card-quote`: create `components/card-quote/card-quote.html` 
 
 ## Styles
 
-`styles/site.css` sets the layer order and imports, in order: `tokens.css` (custom properties), `elements.css` (plain elements), `layout.css` (`.page`, `.flow`, `.cards`), `sections.css` (page sections: `.hero`, `.lead`, `.cta`, `.steps`, `.contact`), `utilities.css` (`.text-s` … `.text-4xl`, which the editor's Text size writes). A new shared file is imported from `site.css`. Elements have no margins: text blocks take `flow`, components use `gap`.
+`styles/site.css` sets the layer order and imports, in order: `tokens.css` (custom properties), `elements.css` (plain elements), `layout.css` (`.page`, `.flow`, `.cards`), `sections.css` (page sections: `.hero`, `.lead`, `.cta`, `.steps`, `.contact`; `.btn` for a link styled as a button, `<a class="btn" href="…">Label</a>`), `utilities.css` (`.skip` for the page's skip link, then `.text-s` … `.text-4xl`, which the editor's Text size writes). A new shared file is imported from `site.css`. Elements have no margins: text blocks take `flow`, components use `gap`.
 
 ## Adding a blog
 
