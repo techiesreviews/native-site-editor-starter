@@ -1,7 +1,8 @@
 /* Fills its grid cell, so every card in a row is as tall as the tallest and
-   the link paragraph lines up along the bottom. */
+   the link paragraph lines up along the bottom. Bounds a stretched title link. */
 :host {
   display: block;
+  position: relative;
 }
 
 article {
@@ -40,6 +41,9 @@ p {
   font-weight: 600;
 }
 
+/* Keep the action link clickable above a stretched title link. */
 .actions a {
+  position: relative;
+  z-index: 1;
   color: var(--accent);
 }

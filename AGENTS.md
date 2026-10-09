@@ -103,6 +103,8 @@ To add a component `card-quote`: create `components/card-quote/card-quote.html` 
 
 `styles/site.css` sets the layer order and imports, in order: `tokens.css` (custom properties), `elements.css` (plain elements), `layout.css` (`.page`, `.flow`, `.cards`), `sections.css` (page sections: `.hero`, `.lead`, `.cta`, `.steps`, `.contact`; `.btn` for a link styled as a button, `<a class="btn" href="…">Label</a>`), `utilities.css` (`.skip` for the page's skip link, then `.text-s` … `.text-4xl`, which the editor's Text size writes). A new shared file is imported from `site.css`. Elements have no margins: text blocks take `flow`, components use `gap`.
 
+In a `.cards` grid or a card component, a title whose only content is a link (`<h3><a href="…">…</a></h3>` or `<h3 slot="title"><a href="…">…</a></h3>`) stretches that link over the whole card. Card components set `:host { position: relative; }` to bound it; other links in the card stay clickable.
+
 ## Adding a blog
 
 1. `blog/index.html`: a copy of `about/index.html` with a hero section and a list of posts, for example `<div class="cards">` of `<card-project>`s, each with `<p slot="note">` (date), `<h3 slot="title">`, `<p slot="body" class="body">` and `<a slot="link" href="/blog/<slug>/">Read</a>`, as in the home page's `#work` section.

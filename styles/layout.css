@@ -29,4 +29,23 @@
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: var(--space-m);
   }
+
+  /* Stretch a title link over its card. This lives in the site's CSS because
+     component CSS cannot reach a link inside slotted content. */
+  .cards > * {
+    position: relative;
+  }
+
+  .cards > * :is(h2, h3, h4) > a:only-child::after,
+  [slot="title"] > a:only-child::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+
+  /* Keep other links above the stretched title link in plain cards too. */
+  .cards > * a:not(:is(h2, h3, h4, [slot="title"]) > a:only-child) {
+    position: relative;
+    z-index: 1;
+  }
 }
