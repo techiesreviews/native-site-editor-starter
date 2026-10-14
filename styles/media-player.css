@@ -325,8 +325,7 @@
   }
 
   .media-player[data-kind="online"][data-started] > img,
-  .media-player[data-kind="online"][data-state="service"] > img,
-  .media-player[data-kind="online"][data-state="tap"] > img {
+  .media-player[data-kind="online"][data-state="service"] > img {
     z-index: -1;
   }
 
@@ -339,8 +338,7 @@
     pointer-events: none;
   }
 
-  .media-player[data-state="service"] > .media-frame,
-  .media-player[data-state="tap"] > .media-frame {
+  .media-player[data-state="service"] > .media-frame {
     pointer-events: auto;
   }
 
@@ -351,8 +349,7 @@
   }
 
   .media-player:not([data-started]) > .media-surface,
-  .media-player[data-state="service"] > .media-surface,
-  .media-player[data-state="tap"] > .media-surface {
+  .media-player[data-state="service"] > .media-surface {
     display: none;
   }
 
