@@ -44,6 +44,20 @@
 // component CSS styles a media slot by its name ([slot="image"]), which
 // matches the wrapper; the video fills it and keeps its own object-position.
 // Download cards (styles/media-player.css) need no script.
+//
+// Online video, a YouTube or Vimeo video: a link to it holding its still
+// picture, copied into the site. Visitors see the still with a play button;
+// YouTube (from youtube-nocookie.com) or Vimeo loads only on tap, then the
+// bar above is laid over it (scripts/media-online.js, loaded only by pages
+// that have one). Without the script the link opens the video on its site:
+//   <a class="online-video" href="https://www.youtube.com/watch?v=aqz-KE-bpKQ">
+//     <img src="/media/talk.webp" alt="Big Buck Bunny" width="1280" height="720">
+//   </a>
+// The href may be any usual YouTube or Vimeo address (watch, youtu.be,
+// embed, shorts, vimeo.com/ID or /ID/HASH, player.vimeo.com); a start time
+// (t=90, t=1m30s, #t=90s) is kept. data-controls="service" keeps the
+// service's own bar: use it for a Vimeo video whose owner's plan cannot hide
+// Vimeo's bar. The still's alt (or the link's aria-label) names the video.
 
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
 const enhanced = new WeakSet();
@@ -158,7 +172,7 @@ function timeline(media) {
   range.setAttribute("aria-label", "Seek");
   let dragging = false;
   const duration = () =>
-    Number.isFinite(media.duration) && media.duration > 0 ? media.duration : Number(media.dataset.duration) || 0;
+    Number.isFinite(media.duration) && media.duration > 0 ? media.duration : Number(media.dataset?.duration) || 0;
   const sync = () => {
     const d = duration();
     const now = dragging ? Number(range.value) : media.currentTime;
@@ -217,98 +231,132 @@ function fallBack(media, box, parts) {
   });
 }
 
-function enhanceVideo(video) {
-  const box = wrap(video, "video");
-  video.controls = false;
-  video.playsInline = true;
-  const name = nameOf(video);
-  box.setAttribute("role", "group");
-  box.setAttribute("aria-label", name ? `Video: ${name}` : "Video");
-
+// The still's large play button, shared with Online videos.
+function startButton(name) {
   const start = button("media-start", name ? `Play video: ${name}` : "Play video");
   start.innerHTML = `<span class="media-start-disc">${icon("play")}</span>`;
+  return start;
+}
 
+// CC for a video's own subtitles or captions track.
+function trackSwitch(video) {
+  const trackEl = video.querySelector('track[kind="subtitles"], track[kind="captions"]');
+  const track = trackEl?.track;
+  if (!track) return null;
+  track.mode = trackEl.default ? "showing" : "disabled";
+  return {
+    isOn: () => track.mode === "showing",
+    toggle: () => {
+      track.mode = track.mode === "showing" ? "disabled" : "showing";
+    },
+    // The browser's own full screen (an iPhone) can switch subtitles too.
+    watch: (callback) => video.textTracks.addEventListener?.("change", callback),
+  };
+}
+
+// Picture-in-picture where the browser has it (Safari's presentation mode too).
+function pipSwitch(video) {
+  const webkitPip =
+    typeof video.webkitSetPresentationMode === "function" &&
+    typeof video.webkitSupportsPresentationMode === "function" &&
+    video.webkitSupportsPresentationMode("picture-in-picture");
+  if (!((document.pictureInPictureEnabled && !video.disablePictureInPicture) || webkitPip)) return null;
+  const isOn = () =>
+    document.pictureInPictureElement === video || video.webkitPresentationMode === "picture-in-picture";
+  return {
+    isOn,
+    toggle: () => {
+      if (document.pictureInPictureEnabled) {
+        const done = isOn() ? document.exitPictureInPicture() : video.requestPictureInPicture();
+        done.catch(() => {});
+      } else {
+        video.webkitSetPresentationMode(isOn() ? "inline" : "picture-in-picture");
+      }
+    },
+    watch: (callback) => {
+      for (const type of ["enterpictureinpicture", "leavepictureinpicture", "webkitpresentationmodechanged"]) {
+        video.addEventListener(type, callback);
+      }
+    },
+  };
+}
+
+/** The bar of a video, shared by the site's own videos and Online videos
+    (enhance() hands it to scripts/media-online.js). media is a <video> or
+    an object shaped like one: paused, currentTime, duration, muted,
+    playbackRate, play(), pause() and the same events; canChangeSpeed false
+    hides the speed button.
+    Optional parts:
+      start       the still's play button: on first play it hides, the bar shows
+      surface     the picture: a click plays or pauses, a double click goes full screen
+      cc, pip     { isOn(), toggle(), watch(callback) }, when the video has them
+      nativeFull  full screen where the wrapper cannot go full screen (an iPhone)
+    Returns the bar. */
+function videoBar(box, media, { start, surface, cc, pip, nativeFull } = {}) {
   const bar = document.createElement("div");
   bar.className = "media-bar";
   bar.hidden = true;
-  const toggle = playToggle(video, "media-toggle");
-  bar.append(toggle, ...timeline(video));
+  const toggle = playToggle(media, "media-toggle");
+  bar.append(toggle, ...timeline(media));
 
   const mute = button("media-mute", "Mute");
   const syncMute = () => {
-    mute.setAttribute("aria-pressed", String(video.muted));
-    setIcon(mute, video.muted ? "muted" : "sound");
+    mute.setAttribute("aria-pressed", String(media.muted));
+    setIcon(mute, media.muted ? "muted" : "sound");
   };
   mute.addEventListener("click", () => {
-    video.muted = !video.muted;
+    media.muted = !media.muted;
     syncMute();
   });
-  video.addEventListener("volumechange", syncMute);
+  media.addEventListener("volumechange", syncMute);
   syncMute();
   bar.append(mute);
 
-  const trackEl = video.querySelector('track[kind="subtitles"], track[kind="captions"]');
-  let cc = null;
-  if (trackEl && trackEl.track) {
-    const track = trackEl.track;
-    cc = button("media-cc", "Subtitles", "cc");
-    track.mode = trackEl.default ? "showing" : "disabled";
-    const syncCc = () => cc.setAttribute("aria-pressed", String(track.mode === "showing"));
-    cc.addEventListener("click", () => {
-      track.mode = track.mode === "showing" ? "disabled" : "showing";
+  let ccButton = null;
+  if (cc) {
+    ccButton = button("media-cc", "Subtitles", "cc");
+    const syncCc = () => ccButton.setAttribute("aria-pressed", String(cc.isOn()));
+    ccButton.addEventListener("click", () => {
+      cc.toggle();
       syncCc();
     });
-    // The browser's own full screen (an iPhone) can switch subtitles too.
-    video.textTracks.addEventListener?.("change", syncCc);
+    cc.watch(syncCc);
     syncCc();
-    bar.append(cc);
+    bar.append(ccButton);
   }
 
   const speeds = [1, 1.25, 1.5, 2, 0.75];
   const speed = button("media-speed", "Speed 1×");
   const syncSpeed = () => {
-    speed.textContent = `${video.playbackRate}×`;
-    speed.setAttribute("aria-label", `Speed ${video.playbackRate}×`);
+    speed.textContent = `${media.playbackRate}×`;
+    speed.setAttribute("aria-label", `Speed ${media.playbackRate}×`);
+    speed.hidden = media.canChangeSpeed === false;
   };
   speed.addEventListener("click", () => {
-    const at = speeds.indexOf(video.playbackRate);
-    video.playbackRate = speeds[(at + 1) % speeds.length];
+    const at = speeds.indexOf(media.playbackRate);
+    media.playbackRate = speeds[(at + 1) % speeds.length];
     syncSpeed();
   });
-  video.addEventListener("ratechange", syncSpeed);
+  media.addEventListener("ratechange", syncSpeed);
   syncSpeed();
   bar.append(speed);
 
-  const webkitPip =
-    typeof video.webkitSetPresentationMode === "function" &&
-    typeof video.webkitSupportsPresentationMode === "function" &&
-    video.webkitSupportsPresentationMode("picture-in-picture");
-  if ((document.pictureInPictureEnabled && !video.disablePictureInPicture) || webkitPip) {
-    const pip = button("media-pip", "Picture in picture", "pip");
-    const inPip = () =>
-      document.pictureInPictureElement === video || video.webkitPresentationMode === "picture-in-picture";
-    const syncPip = () => pip.setAttribute("aria-pressed", String(inPip()));
-    pip.addEventListener("click", () => {
-      if (document.pictureInPictureEnabled) {
-        const done = inPip() ? document.exitPictureInPicture() : video.requestPictureInPicture();
-        done.catch(() => {});
-      } else {
-        video.webkitSetPresentationMode(inPip() ? "inline" : "picture-in-picture");
-      }
-    });
-    for (const type of ["enterpictureinpicture", "leavepictureinpicture", "webkitpresentationmodechanged"]) {
-      video.addEventListener(type, syncPip);
-    }
+  if (pip) {
+    const pipButton = button("media-pip", "Picture in picture", "pip");
+    const syncPip = () => pipButton.setAttribute("aria-pressed", String(pip.isOn()));
+    pipButton.addEventListener("click", () => pip.toggle());
+    pip.watch(syncPip);
     syncPip();
-    bar.append(pip);
+    bar.append(pipButton);
   }
 
   // Full screen: the wrapper, so the bar comes along; an iPhone has only the
   // video's own full screen, with the system's controls.
   const elementFull = (document.fullscreenEnabled || document.webkitFullscreenEnabled) &&
     (box.requestFullscreen || box.webkitRequestFullscreen);
-  if (elementFull || typeof video.webkitEnterFullscreen === "function") {
-    const full = button("media-full", "Full screen", "full");
+  let full = null;
+  if (elementFull || nativeFull) {
+    full = button("media-full", "Full screen", "full");
     const isFull = () => (document.fullscreenElement || document.webkitFullscreenElement) === box;
     const syncFull = () => {
       full.setAttribute("aria-pressed", String(isFull()));
@@ -321,30 +369,24 @@ function enhanceVideo(video) {
         const done = (box.requestFullscreen || box.webkitRequestFullscreen).call(box);
         if (done) done.catch(() => {});
       } else {
-        video.webkitEnterFullscreen();
+        nativeFull();
       }
     });
     document.addEventListener("fullscreenchange", syncFull);
     document.addEventListener("webkitfullscreenchange", syncFull);
     syncFull();
     bar.append(full);
-    video.addEventListener("dblclick", () => full.click());
+    surface?.addEventListener("dblclick", () => full.click());
   }
 
-  box.append(start, bar);
-  joinPlayers(video);
-  fallBack(video, box, [start, bar]);
+  box.append(bar);
+  joinPlayers(media);
 
-  // Tapping the still starts the video: it loads only now.
-  start.addEventListener("click", () => {
-    video.preload = "auto";
-    play(video);
-  });
-  video.addEventListener("play", () => {
+  media.addEventListener("play", () => {
     if ("started" in box.dataset) return;
     const hadFocus = document.activeElement === start;
     box.dataset.started = "";
-    start.hidden = true;
+    if (start) start.hidden = true;
     bar.hidden = false;
     if (hadFocus) toggle.focus();
   });
@@ -355,27 +397,27 @@ function enhanceVideo(video) {
     delete box.dataset.idle;
     clearTimeout(idleTimer);
     idleTimer = setTimeout(() => {
-      if (!video.paused && !box.contains(document.activeElement) && !bar.matches(":hover")) {
+      if (!media.paused && !box.contains(document.activeElement) && !bar.matches(":hover")) {
         box.dataset.idle = "";
       }
     }, 2500);
   };
   box.addEventListener("pointermove", wake);
   box.addEventListener("focusin", wake);
-  video.addEventListener("pause", wake);
-  video.addEventListener("play", wake);
+  media.addEventListener("pause", wake);
+  media.addEventListener("play", wake);
 
   // A tap on the picture shows the bar if it was hidden; otherwise a click
   // plays or pauses.
   let wasIdle = false;
-  video.addEventListener("pointerdown", (event) => {
+  surface?.addEventListener("pointerdown", (event) => {
     wasIdle = event.pointerType !== "mouse" && "idle" in box.dataset;
   });
-  video.addEventListener("click", () => {
+  surface?.addEventListener("click", () => {
     if (!("started" in box.dataset)) return;
     if (wasIdle) wake();
-    else if (video.paused) play(video);
-    else video.pause();
+    else if (media.paused) play(media);
+    else media.pause();
   });
 
   // Keys while focus is in the player: k play/pause, m sound, c subtitles,
@@ -388,10 +430,10 @@ function enhanceVideo(video) {
     let handled = false;
     if (key === "k" || (key === " " && onRange)) handled = press(toggle);
     else if (key === "m") handled = press(mute);
-    else if (key === "c") handled = press(cc);
-    else if (key === "f") handled = press(bar.querySelector(".media-full"));
+    else if (key === "c") handled = press(ccButton);
+    else if (key === "f") handled = press(full);
     else if (!onRange && (key === "arrowleft" || key === "arrowright")) {
-      video.currentTime = Math.max(0, video.currentTime + (key === "arrowleft" ? -5 : 5));
+      media.currentTime = Math.max(0, media.currentTime + (key === "arrowleft" ? -5 : 5));
       handled = true;
     }
     if (handled) event.preventDefault();
@@ -402,6 +444,32 @@ function enhanceVideo(video) {
       box.toggleAttribute("data-narrow", entry.contentRect.width < 480);
     }).observe(box);
   }
+  return bar;
+}
+
+function enhanceVideo(video) {
+  const box = wrap(video, "video");
+  video.controls = false;
+  video.playsInline = true;
+  const name = nameOf(video);
+  box.setAttribute("role", "group");
+  box.setAttribute("aria-label", name ? `Video: ${name}` : "Video");
+  const start = startButton(name);
+  box.append(start);
+  const bar = videoBar(box, video, {
+    start,
+    surface: video,
+    cc: trackSwitch(video),
+    pip: pipSwitch(video),
+    nativeFull: typeof video.webkitEnterFullscreen === "function" ? () => video.webkitEnterFullscreen() : null,
+  });
+  fallBack(video, box, [start, bar]);
+
+  // Tapping the still starts the video: it loads only now.
+  start.addEventListener("click", () => {
+    video.preload = "auto";
+    play(video);
+  });
 }
 
 function enhanceLooping(video) {
@@ -521,9 +589,16 @@ function enhanceAudio(audio) {
   fallBack(audio, box, parts);
 }
 
-/** Turns every video and audio element under root into a player. Safe to
-    call again for media added later; each element is done once. */
+/** Turns every video and audio element under root into a player, and each
+    Online video into a still with a play button. Safe to call again for
+    media added later; each element is done once. */
 export function enhance(root = document) {
+  if (root.querySelector("a.online-video")) {
+    import("./media-online.js").then(
+      (online) => online.enhanceOnline(root, { wrap, nameOf, play, startButton, videoBar }),
+      () => {}, // without the layer the link still opens the video on its site
+    );
+  }
   for (const media of root.querySelectorAll("video, audio")) {
     if (enhanced.has(media) || media.dataset.player === "off") continue;
     const looping = media.localName === "video" && (media.hasAttribute("data-background") || (media.hasAttribute("loop") && media.hasAttribute("muted")));
