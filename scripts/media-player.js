@@ -40,7 +40,9 @@
 // Name a video or clip with aria-label (or title): the players use it.
 // data-player="off" on a <video> or <audio> leaves it to the browser.
 // A video or looping video gets a <div class="media-player"> wrapper; a slot
-// attribute moves to the wrapper, so it stays in its component's slot.
+// attribute moves to the wrapper, so it stays in its component's slot. So
+// component CSS styles a media slot by its name ([slot="image"]), which
+// matches the wrapper; the video fills it and keeps its own object-position.
 // Download cards (styles/media-player.css) need no script.
 
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
@@ -256,6 +258,8 @@ function enhanceVideo(video) {
       track.mode = track.mode === "showing" ? "disabled" : "showing";
       syncCc();
     });
+    // The browser's own full screen (an iPhone) can switch subtitles too.
+    video.textTracks.addEventListener?.("change", syncCc);
     syncCc();
     bar.append(cc);
   }
@@ -478,6 +482,10 @@ function enhanceAudio(audio) {
     panel.className = "media-transcript";
     panel.id = `media-transcript-${Math.random().toString(36).slice(2, 9)}`;
     panel.hidden = true;
+    // A long transcript scrolls inside the panel, so keyboard users can focus it.
+    panel.tabIndex = 0;
+    panel.setAttribute("role", "region");
+    panel.setAttribute("aria-label", name ? `Transcript: ${name}` : "Transcript");
     const open = document.createElement("button");
     open.type = "button";
     open.className = "media-transcript-toggle";

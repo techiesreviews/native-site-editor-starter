@@ -196,7 +196,7 @@ A page that holds a video or a sound clip links the player after the site's styl
 - **Audio:** `<audio src controls preload="none" data-duration="…">` (total seconds, shown before the file loads), with an optional subtitles track that gives a Transcript button.
 - **Download card:** `<a class="download-card" href="…">` holding the first page's `<img>`, `<span class="download-card-name">`, `<span class="download-card-meta">` (type and size) and `<span class="download-card-action">`: Open for PDFs (they open in the browser), Download with the `download` attribute for other files.
 
-The player wraps each video and audio element in `<div class="media-player">` when the page loads (a `slot` attribute moves to the wrapper); write the plain markup above in pages, never the wrapper. `data-player="off"` leaves an element to the browser.
+The player wraps each video and audio element in `<div class="media-player">` when the page loads (a `slot` attribute moves to the wrapper); write the plain markup above in pages, never the wrapper. A component styles a media slot by its name (`[slot="image"]`), which then matches the wrapper; the video fills it. `data-player="off"` leaves an element to the browser.
 
 ## Adding a blog
 
