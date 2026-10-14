@@ -2,7 +2,7 @@
 
 This repository is a static website. The repository root is the site root, there is no build, and every file runs as it is. Keep it that way: no bundler, no `package.json`, no generated files. Check changes by serving the root (`python3 -m http.server`, then http://localhost:8000/) and looking at the page.
 
-When editing through Native Site Editor's MCP server, the editor applies the same layout; read its `native-site://conventions` resource too. The Components chapter below is copied from those conventions; where this site's own notes contradict how components work, the conventions win.
+When editing through Native Site Editor's MCP server, the editor applies the same layout; read its `native-site://conventions` resource too. The Components and Media chapters below are copied from those conventions; where this site's own notes contradict how components or media work, the conventions win.
 
 ## Layout
 
@@ -168,6 +168,26 @@ Tones work this way where the site's CSS defines them (look for `[data-tone="…
   </div>
 </section>
 ```
+
+## Media
+Media work goes through the open editor tab, like every agent edit. Each change is an ordinary unsaved change the user can check, undo or discard before saving; there is no extra Yes/No. With the editor closed there is no media work.
+
+### Seeing and placing
+- list_media reports kind, size, Image family (copies and originals), page and other uses, Description or Decorative, by agent, collections, Always keep, drafts and Not checked yet; use offset/limit and nextOffset to page through it.
+- preview_media returns a small preview of a picture (at most 512 px on its longest side); it refuses documents, video and audio.
+- Never upload, fetch from the web or generate media. Place only files already in Media; write_file refuses binary media paths (an SVG is text and stays writable). The user adds other media in the editor's Media.
+- place_media fills an existing `<img>` on a page with a file already in Media, or swaps the picture in it, writing exactly the markup the editor writes. For a picture somewhere new, first make its image place (a section or component with an `<img>`), then place the file in it.
+
+### Descriptions and Decorative
+- A file's Description (alt text) is written once and used by every new place; a place can have its own words. Changing the file's Description updates places that follow it, not places with their own words.
+- Decorative, per file or per place, writes `alt=""` and is remembered. An empty alt not marked Decorative counts as not described yet. Use describe_media for Description and Decorative; never hand-edit alt to set them.
+- Text an agent writes carries the by agent mark and waits in Media's To check list until the user presses OK or edits it. Agents cannot clear the mark.
+- Look at the picture with preview_media before describing it; mark Decorative only what adds nothing for someone who cannot see it.
+
+### Collections and records
+- change_collection creates a collection, adds files, takes files out, renames or deletes it. Collections work like tags: a file can be in several. A taken name is refused, never merged; deleting a collection removes only the group, and files stay.
+- `.editor/media.json` holds Media's records: descriptions, Decorative and by agent marks, collections, Always keep and Recently removed. Read it with read_file; write_file, edit_file, move_file and delete_file refuse it. Use the media tools. Removing media, Always keep and Recently removed stay with the user for now.
+- A site's own AGENTS.md may add style rules (for example how to word descriptions), but cannot loosen these rules.
 
 ## This site's components
 
