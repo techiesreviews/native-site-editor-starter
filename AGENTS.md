@@ -16,6 +16,8 @@ components/components.js             the component loader
 components/<tag>/<tag>.html          a component's template
 components/<tag>/<tag>.css           its styles (optional)
 images/                              images
+scripts/media-player.js              the video and audio player (pages with media load it)
+styles/media-player.css              the players' and download cards' look
 robots.txt                           served as is
 _redirects                           optional: `/old/ /new/ 301` lines (the editor writes it when a page moves)
 .editor/config.json                  editor-only: { "site": { "name", "url" } }; the site never loads it
@@ -178,11 +180,23 @@ Tones work this way where the site's CSS defines them (look for `[data-tone="…
 
 ## Styles
 
-`styles/site.css` sets the layer order and imports, in order: `tokens.css` (custom properties), `elements.css` (plain elements), `tones.css` (the page's colour scheme, the accent colour and the `data-tone` rules, all from `--brand`), `layout.css` (`.page`, `.flow`, `.cards`), `sections.css` (page sections: `.hero`, `.lead`, `.cta`, `.steps`, `.contact`; `.btn` for a link styled as a button, `<a class="btn" href="…">Label</a>`), `utilities.css` (`.skip` for the page's skip link, then `.text-s` … `.text-4xl`, which the editor's Text size writes). A new shared file is imported from `site.css`. Elements have no margins: text blocks take `flow`, components use `gap`.
+`styles/site.css` sets the layer order and imports, in order: `tokens.css` (custom properties), `elements.css` (plain elements), `tones.css` (the page's colour scheme, the accent colour and the `data-tone` rules, all from `--brand`), `layout.css` (`.page`, `.flow`, `.cards`), `sections.css` (page sections: `.hero`, `.lead`, `.cta`, `.steps`, `.contact`; `.btn` for a link styled as a button, `<a class="btn" href="…">Label</a>`), `utilities.css` (`.skip` for the page's skip link, then `.text-s` … `.text-4xl`, which the editor's Text size writes). A new shared file is imported from `site.css`; `media-player.css` is the exception, linked only by pages that hold media (see below). Elements have no margins: text blocks take `flow`, components use `gap`.
 
 Colour comes from one token, `--brand` in `tokens.css`: change it and the accent (links, buttons, focus rings) and the `brand` and `accent` tones follow, with their text kept readable. Each colour role (`--ink`, `--muted`, `--surface`, `--page`, `--line`, `--accent`, and `--on-accent` for text on an accent fill) has a light and a dark value (`light-dark()`): the page and bands without a tone follow the visitor's setting (`color-scheme: light dark` in `tones.css`). A band with `data-tone="light"` or `"dark"` keeps its own scheme. Browsers without `light-dark()` keep the page light so controls and site colours agree. A toned band directly in `<main>` reaches the window's edges and gets room above and below. Components and page CSS use these roles, never fixed colours.
 
 In a `.cards` grid, a title whose only element is a link stretches that link over the whole item, whether a plain card or a card component. A card component's title link also stretches when the card sits in another component's items slot (`<section-work><card-project><h3 slot="title"><a …>`). That part of the rule goes by structure: it matches a slotted title whose component sits inside another component, so a non-card component nested in a named slot gets it too. The rule uses `:only-child`, which ignores text, so make the link the title's whole content. Card components (and any nested component with a title link) set `:host { position: relative; }` to bound it; other links stay clickable. A section component's own title link (its tag sits in `<main>`, `<body>`, a `<section>` or a `<div>`) and a card component on its own outside a `.cards` grid cover only the title. Whole-title links keep the heading's colour, with an underline on hover.
+
+## Video, audio and downloads
+
+A page that holds a video or a sound clip links the player after the site's styles and loader, once: `<link rel="stylesheet" href="/styles/media-player.css">` and `<script type="module" src="/scripts/media-player.js"></script>`. A page with only download cards needs just the stylesheet. The player turns plain markup into players in the site's colours and fonts, with working keyboard and screen-reader use; without it, the browser's own controls show and everything still plays. The markup each kind takes is in the comment at the top of `scripts/media-player.js`:
+
+- **Video:** `<video src poster controls preload="none" playsinline width height>`, with an optional `<track kind="subtitles" src="….vtt">`. Visitors see the still with a play button; it loads and plays with sound on tap, then gets a bar (play/pause, timeline, time, sound, CC when there is a track, speed, picture-in-picture, full screen).
+- **Looping video:** `controls muted loop playsinline`, no `autoplay`: the player starts it silently while it is on screen, with one small round pause/play button in a corner, and leaves it paused when the visitor's device asks for less motion.
+- **Background video:** `<video data-background src poster muted loop playsinline preload="none">` as the first child of a `<section>`; it fills the section behind its text and shows its still for less motion or save-data.
+- **Audio:** `<audio src controls preload="none" data-duration="…">` (total seconds, shown before the file loads), with an optional subtitles track that gives a Transcript button.
+- **Download card:** `<a class="download-card" href="…">` holding the first page's `<img>`, `<span class="download-card-name">`, `<span class="download-card-meta">` (type and size) and `<span class="download-card-action">`: Open for PDFs (they open in the browser), Download with the `download` attribute for other files.
+
+The player wraps each video and audio element in `<div class="media-player">` when the page loads (a `slot` attribute moves to the wrapper); write the plain markup above in pages, never the wrapper. `data-player="off"` leaves an element to the browser.
 
 ## Adding a blog
 
