@@ -113,6 +113,7 @@ class ServicePlayer extends EventTarget {
   duration = NaN;
   canChangeSpeed = true;
   control = null;
+  closed = false; // after a hand-over the service speaks for itself
   #time = 0;
   #muted = false;
   #mutedSetAt = -Infinity;
@@ -143,31 +144,39 @@ class ServicePlayer extends EventTarget {
     return this.#rate;
   }
 
+  // The bar shows the speed the service confirms, not the one asked for.
   set playbackRate(rate) {
-    this.#rate = rate;
-    this.emit("ratechange");
-    Promise.resolve(this.control?.rate(rate)).catch(() => {
-      // Vimeo refuses speed changes on some owners' videos.
-      this.canChangeSpeed = false;
-      this.#rate = 1;
-      this.emit("ratechange");
-    });
+    if (!this.control) return;
+    Promise.resolve(this.control.rate(rate)).then(
+      (confirmed) => this.update({ rate: confirmed }),
+      () => {
+        // Vimeo refuses speed changes on some owners' videos.
+        this.canChangeSpeed = false;
+        this.emit("ratechange");
+      },
+    );
   }
 
   play() {
-    this.control?.play();
+    if (!this.closed) this.control?.play();
   }
 
   pause() {
-    this.control?.pause();
+    if (!this.closed) this.control?.pause();
   }
 
   emit(type) {
-    this.dispatchEvent(new Event(type));
+    if (!this.closed) this.dispatchEvent(new Event(type));
+  }
+
+  close() {
+    this.closed = true;
+    this.control = null;
   }
 
   /** What the service reports; only changes become events. */
   update({ time, duration, paused, muted, rate }) {
+    if (this.closed) return;
     if (Number.isFinite(duration) && duration > 0 && duration !== this.duration) {
       this.duration = duration;
       this.emit("durationchange");
@@ -198,32 +207,56 @@ function connectYouTube(YT, frame, player) {
   return new Promise((resolve, reject) => {
     let timer = 0;
     let ready = false;
-    const read = () =>
+    let rateWaiter = null;
+    const read = () => {
+      if (player.closed) return clearInterval(timer);
       player.update({ time: api.getCurrentTime(), duration: api.getDuration(), muted: api.isMuted() });
+    };
+    // -1 unstarted, 0 ended, 1 playing, 2 paused, 3 buffering, 5 cued.
+    const state = (data) => {
+      clearInterval(timer);
+      if (player.closed) return;
+      if (data === 1 || data === 3) timer = setInterval(read, 250);
+      read();
+      if (data === 1) player.update({ paused: false });
+      else if (data !== 3) player.update({ paused: true });
+      if (data === 0) player.emit("ended");
+    };
+    // YouTube answers a speed change with an event, or not at all when the
+    // video cannot take that speed; then its current speed is the answer.
+    const rate = (wanted) =>
+      new Promise((answer) => {
+        const timeout = setTimeout(() => answer(api.getPlaybackRate()), 1000);
+        rateWaiter = (confirmed) => {
+          clearTimeout(timeout);
+          answer(confirmed);
+        };
+        api.setPlaybackRate(wanted);
+      });
     const api = new YT.Player(frame, {
       events: {
         onReady: () => {
+          if (player.closed) return;
           player.control = {
             play: () => api.playVideo(),
             pause: () => api.pauseVideo(),
             seek: (time) => api.seekTo(time, true),
             mute: (muted) => (muted ? api.mute() : api.unMute()),
-            rate: (rate) => api.setPlaybackRate(rate),
+            rate,
           };
+          player.canChangeSpeed = (api.getAvailablePlaybackRates?.() ?? [1, 2]).length > 1;
           player.update({ duration: api.getDuration(), muted: api.isMuted(), rate: api.getPlaybackRate() });
+          // It may have started before the API was listening.
+          state(api.getPlayerState());
           ready = true;
           resolve({ cc: null });
         },
-        onStateChange: ({ data }) => {
-          // -1 unstarted, 0 ended, 1 playing, 2 paused, 3 buffering, 5 cued.
-          clearInterval(timer);
-          if (data === 1 || data === 3) timer = setInterval(read, 250);
-          read();
-          if (data === 1) player.update({ paused: false });
-          else if (data !== 3) player.update({ paused: true });
-          if (data === 0) player.emit("ended");
+        onStateChange: ({ data }) => state(data),
+        onPlaybackRateChange: ({ data }) => {
+          rateWaiter?.(data);
+          rateWaiter = null;
+          player.update({ rate: data });
         },
-        onPlaybackRateChange: ({ data }) => player.update({ rate: data }),
         onError: () => {
           clearInterval(timer);
           player.emit("error");
@@ -261,12 +294,16 @@ async function connectVimeo(Vimeo, frame, player) {
   });
 
   await api.ready();
-  const [duration, muted, tracks] = await Promise.all([
+  // It may have started before the listeners above were attached.
+  const [duration, muted, tracks, paused, time, rate] = await Promise.all([
     api.getDuration().catch(() => NaN),
     api.getMuted().catch(() => false),
     api.getTextTracks().catch(() => []),
+    api.getPaused().catch(() => true),
+    api.getCurrentTime().catch(() => 0),
+    api.getPlaybackRate().catch(() => 1),
   ]);
-  player.update({ duration, muted });
+  player.update({ duration, muted, time, rate, paused });
   if (!tracks.length) return { cc: null };
   let on = tracks.some((track) => track.mode === "showing");
   const first = tracks.find((track) => track.kind === "subtitles" || track.kind === "captions") ?? tracks[0];
@@ -307,6 +344,7 @@ function setUp(link, video, kit) {
 
   // The service's own player takes over: its bar, its messages.
   const handOver = (address) => {
+    player?.close();
     box.dataset.state = "service";
     start.hidden = true;
     bar?.remove();
@@ -338,15 +376,26 @@ function setUp(link, video, kit) {
     start.before(surface);
 
     player = new ServicePlayer();
-    player.addEventListener("error", () => handOver());
+    // With the service's own controls back, its message and buttons work.
+    const serviceAddress = playerAddress(video, false);
+    player.addEventListener("error", () => handOver(serviceAddress));
     let parts;
+    let deadline = 0;
     try {
-      const lib = await loadApi(video.service);
-      parts = await (video.service === "youtube" ? connectYouTube : connectVimeo)(lib, frame, player);
+      // Never stays loading: after 10 s the service's own player takes over.
+      parts = await Promise.race([
+        loadApi(video.service).then((lib) =>
+          (video.service === "youtube" ? connectYouTube : connectVimeo)(lib, frame, player)),
+        new Promise((_, reject) => {
+          deadline = setTimeout(() => reject(new Error("the player did not answer")), 10000);
+        }),
+      ]);
     } catch {
-      // An error already handed over; otherwise the API could not load.
-      if (box.dataset.state !== "service") handOver(playerAddress(video, false));
+      // An error already handed over; otherwise the API did not load or answer.
+      if (box.dataset.state !== "service") handOver(serviceAddress);
       return;
+    } finally {
+      clearTimeout(deadline);
     }
     if (box.dataset.state === "service") return; // an error came first
     bar = kit.videoBar(box, player, { start, surface, cc: parts.cc });
@@ -374,6 +423,8 @@ function setUp(link, video, kit) {
     player.addEventListener("play", () => {
       if (box.dataset.state !== "tap") return;
       box.dataset.state = "ready";
+      // Started from the service's own button by keyboard: focus comes to the bar.
+      if (document.activeElement === frame) bar.querySelector(".media-toggle").focus();
       frame.tabIndex = -1;
       frame.setAttribute("aria-hidden", "true");
     });
